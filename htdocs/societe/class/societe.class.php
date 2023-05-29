@@ -5100,4 +5100,19 @@ class Societe extends CommonObject
 
 		return 1;
 	}
+	
+	public function getBannerAddress($htmlkey, $object) {
+	    $html = '';
+	    
+	    // Lien vers hubspot
+	    if(substr($object->import_key, 0, 1) == 'H') {
+	        $idHubSpot = substr($object->import_key, 1);
+	        $html .= '<div class="refidno"><img src="../custom/femtoeasy/img/hubspot.svg" height="20" class="inline-block" /><span>Identifiant Hubspot : <a href="https://app.hubspot.com/contacts/6160665/company/' . $idHubSpot . '/">' . $idHubSpot . '</a></span>';
+	        $html .= ' <a href="../custom/femtoeasy/synchroniserTiersHubSpot.php?idEntreprise=' . $idHubSpot . '"><img src="../custom/femtoeasy/img/synchroniser.png" height="12" class="inline-block" title="Synchroniser" /></a></div>';
+	    }
+	    
+	    $html .= CommonObject::getBannerAddress($htmlkey, $object);
+	    
+	    return $html;
+	}
 }

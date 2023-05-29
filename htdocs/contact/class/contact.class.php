@@ -578,6 +578,7 @@ class Contact extends CommonObject
 		if (empty($this->civility_code) && !is_numeric($this->civility_id)) {
 			$this->civility_code = $this->civility_id; // For backward compatibility
 		}
+		$this->import_key=(empty($this->import_key)?'':$this->import_key);
 		$this->setUpperOrLowerCase();
 		$this->db->begin();
 
@@ -615,6 +616,7 @@ class Contact extends CommonObject
 		$sql .= ", statut = ".((int) $this->statut);
 		$sql .= ", fk_user_modif=".($user->id > 0 ? "'".$this->db->escape($user->id)."'" : "NULL");
 		$sql .= ", default_lang=".($this->default_lang ? "'".$this->db->escape($this->default_lang)."'" : "NULL");
+		$sql .= ", import_key=".($this->import_key?"'".$this->db->escape($this->import_key)."'":"NULL");
 		$sql .= ", entity = ".((int) $this->entity);
 		$sql .= " WHERE rowid = ".((int) $id);
 
@@ -2116,5 +2118,21 @@ class Contact extends CommonObject
 			}
 		}
 		return 0;
+	}
+
+	public function getBannerAddress($htmlkey, $object) {
+	    $html = '';
+	    
+	    if ($object->element == 'contact') {
+    	    // Lien vers hubspot
+    	    if(substr($object->import_key, 0, 1) == 'H') {
+    	        $idHubSpot = substr($object->import_key, 1);
+    	        $html .= '<div class="refidno"><img src="../custom/femtoeasy/img/hubspot.svg" height="20" class="inline-block" /><span>Identifiant Hubspot : <a href="https://app.hubspot.com/contacts/6160665/contact/' . $idHubSpot . '/">' . $idHubSpot . '</a></span></div>';
+    	    }
+	    }
+	    
+   	    $html .= CommonObject::getBannerAddress($htmlkey, $object);
+	    
+	    return $html;
 	}
 }
