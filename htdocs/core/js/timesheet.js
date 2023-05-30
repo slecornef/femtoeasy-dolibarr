@@ -55,8 +55,10 @@ function regexEvent(objet,evt,type)
                     var tmp=parseFloat(objet.value.replace(',','.'));
                     var rnd=Math.trunc(tmp);
                     objet.value=rnd+':'+ Math.round(60*(tmp-rnd));
-                  } else
+                  } else if(objet.value != '') {
+                    alert("Valeur incorrecte : " + objet.value);
                     objet.value='';
+                  }
               }
               /* alert(jQuery("#"+id).val()); */
               break;
