@@ -398,7 +398,37 @@ class Notify
 
 		$oldref = (empty($object->oldref) ? $object->ref : $object->oldref);
 		$newref = (empty($object->newref) ? $object->ref : $object->newref);
-
+		
+		// Traitement des doublons
+		switch ($notifcode) {
+		    case 'ORDER_SUPPLIER_APPROVE':
+		        $sql  = 'SELECT COUNT(*) AS nb ';
+		        $sql .= 'FROM llx_actioncomm ac ';
+		        $sql .= 'WHERE ac.elementtype = \'order_supplier\' ';
+		        $sql .= 'AND label LIKE \'Commande%validée\' ';
+		        $sql .= 'AND fk_element = ' . $object->id;
+		        
+		        $resql = $this->db->query($sql);
+		        
+		        if($resql) {
+		            $num = $this->db->num_rows($resql);
+		            
+		            if($num > 0) {
+		                $obj = $this->db->fetch_object($resql);
+		                
+		                if($obj->nb > 1) {
+		                    // Already sent
+		                    return 0;
+		                }
+		            }
+		        }
+		        break;
+		        
+		    default:
+		        // Nothing to do
+		        break;
+		}
+		
 		$sql = '';
 
 		// Check notification per third party
