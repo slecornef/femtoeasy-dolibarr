@@ -2426,7 +2426,7 @@ function dol_bc($var, $moreclass = '')
  *      @return string						Formated string
  *      @see dol_print_address()
  */
-function dol_format_address($object, $withcountry = 0, $sep = "\n", $outputlangs = '', $mode = 0, $extralangcode = '')
+function dol_format_address($object, $withcountry = 0, $sep = "\n", $outputlangs = '', $mode = 0, $extralangcode = '', $countrysep="\n")
 {
 	global $conf, $langs, $hookmanager;
 
@@ -2493,10 +2493,10 @@ function dol_format_address($object, $withcountry = 0, $sep = "\n", $outputlangs
 	}
 	if ($withcountry) {
 		$langs->load("dict");
-		$ret .= (empty($object->country_code) ? '' : ($ret ? $sep : '').$outputlangs->convToOutputCharset($outputlangs->transnoentitiesnoconv("Country".$object->country_code)));
+		$ret .= (empty($object->country_code) ? '' : ($ret ? $countrysep : '').$outputlangs->convToOutputCharset($outputlangs->transnoentitiesnoconv("Country".$object->country_code)));
 	}
 	if ($hookmanager) {
-		$parameters = array('withcountry' => $withcountry, 'sep' => $sep, 'outputlangs' => $outputlangs,'mode' => $mode, 'extralangcode' => $extralangcode);
+	    $parameters = array('withcountry' => $withcountry, 'sep' => $sep, 'outputlangs' => $outputlangs,'mode' => $mode, 'extralangcode' => $extralangcode);
 		$reshook = $hookmanager->executeHooks('formatAddress', $parameters, $object);
 		if ($reshook > 0) {
 			$ret = '';
