@@ -1583,7 +1583,9 @@ function projectLinesPerWeek(&$inc, $firstdaytoshow, $fuser, $parent, $lines, &$
 						}
 					}
 
-					print '<tr class="oddeven trforbreak nobold">'."\n";
+					// Ajout attributs pour enrouler / dérouler projets
+					print '<tr class="oddeven trforbreak nobold" data-group-master data-group-id="' . $lines[$i]->fk_project . '">'."\n";
+					
 					print '<td colspan="'.(11 + $addcolspan).'">';
 					print $projectstatic->getNomUrl(1, '', 0, '<strong>'.$langs->transnoentitiesnoconv("YourRole").':</strong> '.$projectsrole[$lines[$i]->fk_project]);
 					if ($thirdpartystatic->id > 0) {
@@ -1662,7 +1664,8 @@ function projectLinesPerWeek(&$inc, $firstdaytoshow, $fuser, $parent, $lines, &$
 					$oldprojectforbreak = $projectstatic->id;
 				}
 
-				print '<tr class="oddeven" data-taskid="'.$lines[$i]->id.'">'."\n";
+				// Ajout attributs pour enrouler / rérouler projets
+				print '<tr class="oddeven" data-group-slave data-group-id="' . $lines[$i]->fk_project . '"data-taskid="'.$lines[$i]->id.'">'."\n";
 
 				// User
 				/*

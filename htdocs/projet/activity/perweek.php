@@ -35,6 +35,8 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
 require_once DOL_DOCUMENT_ROOT.'/holiday/class/holiday.class.php';
 
+print ('<link rel="stylesheet" type="text/css" href="../../custom/femtoeasy/css/masterSlave.css" />');
+
 // Load translation files required by the page
 $langs->loadLangs(array('projects', 'users', 'companies'));
 
@@ -882,3 +884,5 @@ if ($conf->use_javascript_ajax) {
 // End of page
 llxFooter();
 $db->close();
+
+print ('<script type="text/javascript" src="../../custom/femtoeasy/include/masterSlave.js"></script>');
