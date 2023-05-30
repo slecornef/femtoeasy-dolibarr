@@ -239,170 +239,164 @@ class PaiementFourn extends Paiement
 
 		$this->db->begin();
 
-		if ($totalamount <> 0) { // On accepte les montants negatifs
-			$ref = $this->getNextNumRef(is_object($thirdparty) ? $thirdparty : '');
+		$ref = $this->getNextNumRef(is_object($thirdparty) ? $thirdparty : '');
 
-			if ($way == 'dolibarr') {
-				$total = $totalamount;
-				$mtotal = $totalamount_converted; // Maybe use price2num with MT for the converted value
-			} else {
-				$total = $totalamount_converted; // Maybe use price2num with MT for the converted value
-				$mtotal = $totalamount;
-			}
+		if ($way == 'dolibarr') {
+			$total = $totalamount;
+			$mtotal = $totalamount_converted; // Maybe use price2num with MT for the converted value
+		} else {
+			$total = $totalamount_converted; // Maybe use price2num with MT for the converted value
+			$mtotal = $totalamount;
+		}
 
-			$sql = 'INSERT INTO '.MAIN_DB_PREFIX.'paiementfourn (';
-			$sql .= 'ref, entity, datec, datep, amount, multicurrency_amount, fk_paiement, num_paiement, note, fk_user_author, fk_bank)';
-			$sql .= " VALUES ('".$this->db->escape($ref)."', ".((int) $conf->entity).", '".$this->db->idate($now)."',";
-			$sql .= " '".$this->db->idate($this->datepaye)."', ".((float) $total).", ".((float) $mtotal).", ".((int) $this->paiementid).", '".$this->db->escape($this->num_payment)."', '".$this->db->escape($this->note_private)."', ".((int) $user->id).", 0)";
+		$sql = 'INSERT INTO '.MAIN_DB_PREFIX.'paiementfourn (';
+		$sql .= 'ref, entity, datec, datep, amount, multicurrency_amount, fk_paiement, num_paiement, note, fk_user_author, fk_bank)';
+		$sql .= " VALUES ('".$this->db->escape($ref)."', ".((int) $conf->entity).", '".$this->db->idate($now)."',";
+		$sql .= " '".$this->db->idate($this->datepaye)."', ".((float) $total).", ".((float) $mtotal).", ".((int) $this->paiementid).", '".$this->db->escape($this->num_payment)."', '".$this->db->escape($this->note_private)."', ".((int) $user->id).", 0)";
 
-			$resql = $this->db->query($sql);
-			if ($resql) {
-				$this->id = $this->db->last_insert_id(MAIN_DB_PREFIX.'paiementfourn');
+		$resql = $this->db->query($sql);
+		if ($resql) {
+			$this->id = $this->db->last_insert_id(MAIN_DB_PREFIX.'paiementfourn');
 
-				// Insere tableau des montants / factures
-				foreach ($this->amounts as $key => $amount) {
-					$facid = $key;
-					if (is_numeric($amount) && $amount <> 0) {
-						$amount = price2num($amount);
-						$sql = 'INSERT INTO '.MAIN_DB_PREFIX.'paiementfourn_facturefourn (fk_facturefourn, fk_paiementfourn, amount, multicurrency_amount)';
-						$sql .= " VALUES (".((int) $facid).", ".((int) $this->id).", ".((float) $amount).', '.((float) $this->multicurrency_amounts[$key]).')';
-						$resql = $this->db->query($sql);
-						if ($resql) {
-							$invoice = new FactureFournisseur($this->db);
-							$invoice->fetch($facid);
+			// Insere tableau des montants / factures
+			foreach ($this->amounts as $key => $amount) {
+				$facid = $key;
+				if (is_numeric($amount) && $amount <> 0) {
+					$amount = price2num($amount);
+					$sql = 'INSERT INTO '.MAIN_DB_PREFIX.'paiementfourn_facturefourn (fk_facturefourn, fk_paiementfourn, amount, multicurrency_amount)';
+					$sql .= " VALUES (".((int) $facid).", ".((int) $this->id).", ".((float) $amount).', '.((float) $this->multicurrency_amounts[$key]).')';
+					$resql = $this->db->query($sql);
+					if ($resql) {
+						$invoice = new FactureFournisseur($this->db);
+						$invoice->fetch($facid);
 
-							// If we want to closed paid invoices
-							if ($closepaidinvoices) {
-								$paiement = $invoice->getSommePaiement();
-								$creditnotes=$invoice->getSumCreditNotesUsed();
-								//$creditnotes = 0;
-								$deposits=$invoice->getSumDepositsUsed();
-								//$deposits = 0;
-								$alreadypayed = price2num($paiement + $creditnotes + $deposits, 'MT');
-								$remaintopay = price2num($invoice->total_ttc - $paiement - $creditnotes - $deposits, 'MT');
-								if ($remaintopay == 0) {
-									// If invoice is a down payment, we also convert down payment to discount
-									if ($invoice->type == FactureFournisseur::TYPE_DEPOSIT) {
-										$amount_ht = $amount_tva = $amount_ttc = array();
-										$multicurrency_amount_ht = $multicurrency_amount_tva = $multicurrency_amount_ttc = array();
+						// If we want to closed paid invoices
+						if ($closepaidinvoices) {
+							$paiement = $invoice->getSommePaiement();
+							$creditnotes=$invoice->getSumCreditNotesUsed();
+							//$creditnotes = 0;
+							$deposits=$invoice->getSumDepositsUsed();
+							//$deposits = 0;
+							$alreadypayed = price2num($paiement + $creditnotes + $deposits, 'MT');
+							$remaintopay = price2num($invoice->total_ttc - $paiement - $creditnotes - $deposits, 'MT');
+							if ($remaintopay == 0) {
+								// If invoice is a down payment, we also convert down payment to discount
+								if ($invoice->type == FactureFournisseur::TYPE_DEPOSIT) {
+									$amount_ht = $amount_tva = $amount_ttc = array();
+									$multicurrency_amount_ht = $multicurrency_amount_tva = $multicurrency_amount_ttc = array();
 
-										// Insert one discount by VAT rate category
-										require_once DOL_DOCUMENT_ROOT . '/core/class/discount.class.php';
-										$discount = new DiscountAbsolute($this->db);
-										$discount->fetch('', 0, $invoice->id);
-										if (empty($discount->id)) {    // If the invoice was not yet converted into a discount (this may have been done manually before we come here)
-											$discount->discount_type = 1; // Supplier discount
-											$discount->description = '(DEPOSIT)';
-											$discount->fk_soc = $invoice->socid;
-											$discount->fk_invoice_supplier_source = $invoice->id;
+									// Insert one discount by VAT rate category
+									require_once DOL_DOCUMENT_ROOT . '/core/class/discount.class.php';
+									$discount = new DiscountAbsolute($this->db);
+									$discount->fetch('', 0, $invoice->id);
+									if (empty($discount->id)) {    // If the invoice was not yet converted into a discount (this may have been done manually before we come here)
+										$discount->discount_type = 1; // Supplier discount
+										$discount->description = '(DEPOSIT)';
+										$discount->fk_soc = $invoice->socid;
+										$discount->fk_invoice_supplier_source = $invoice->id;
 
-											// Loop on each vat rate
-											$i = 0;
-											foreach ($invoice->lines as $line) {
-												if ($line->total_ht != 0) {    // no need to create discount if amount is null
-													$amount_ht[$line->tva_tx] += $line->total_ht;
-													$amount_tva[$line->tva_tx] += $line->total_tva;
-													$amount_ttc[$line->tva_tx] += $line->total_ttc;
-													$multicurrency_amount_ht[$line->tva_tx] += $line->multicurrency_total_ht;
-													$multicurrency_amount_tva[$line->tva_tx] += $line->multicurrency_total_tva;
-													$multicurrency_amount_ttc[$line->tva_tx] += $line->multicurrency_total_ttc;
-													$i++;
-												}
-											}
-
-											foreach ($amount_ht as $tva_tx => $xxx) {
-												$discount->amount_ht = abs($amount_ht[$tva_tx]);
-												$discount->amount_tva = abs($amount_tva[$tva_tx]);
-												$discount->amount_ttc = abs($amount_ttc[$tva_tx]);
-												$discount->multicurrency_amount_ht = abs($multicurrency_amount_ht[$tva_tx]);
-												$discount->multicurrency_amount_tva = abs($multicurrency_amount_tva[$tva_tx]);
-												$discount->multicurrency_amount_ttc = abs($multicurrency_amount_ttc[$tva_tx]);
-												$discount->tva_tx = abs($tva_tx);
-
-												$result = $discount->create($user);
-												if ($result < 0) {
-													$error++;
-													break;
-												}
+										// Loop on each vat rate
+										$i = 0;
+										foreach ($invoice->lines as $line) {
+											if ($line->total_ht != 0) {    // no need to create discount if amount is null
+												$amount_ht[$line->tva_tx] += $line->total_ht;
+												$amount_tva[$line->tva_tx] += $line->total_tva;
+												$amount_ttc[$line->tva_tx] += $line->total_ttc;
+												$multicurrency_amount_ht[$line->tva_tx] += $line->multicurrency_total_ht;
+												$multicurrency_amount_tva[$line->tva_tx] += $line->multicurrency_total_tva;
+												$multicurrency_amount_ttc[$line->tva_tx] += $line->multicurrency_total_ttc;
+												$i++;
 											}
 										}
 
-										if ($error) {
-											setEventMessages($discount->error, $discount->errors, 'errors');
-											$error++;
+										foreach ($amount_ht as $tva_tx => $xxx) {
+											$discount->amount_ht = abs($amount_ht[$tva_tx]);
+											$discount->amount_tva = abs($amount_tva[$tva_tx]);
+											$discount->amount_ttc = abs($amount_ttc[$tva_tx]);
+											$discount->multicurrency_amount_ht = abs($multicurrency_amount_ht[$tva_tx]);
+											$discount->multicurrency_amount_tva = abs($multicurrency_amount_tva[$tva_tx]);
+											$discount->multicurrency_amount_ttc = abs($multicurrency_amount_ttc[$tva_tx]);
+											$discount->tva_tx = abs($tva_tx);
+
+											$result = $discount->create($user);
+											if ($result < 0) {
+												$error++;
+												break;
+											}
 										}
 									}
 
-									// Set invoice to paid
-									if (!$error) {
-										$result = $invoice->setPaid($user, '', '');
-										if ($result < 0) {
-											$this->error = $invoice->error;
-											$error++;
-										}
-									}
-								} else {
-									// hook to have an option to automatically close a closable invoice with less payment than the total amount (e.g. agreed cash discount terms)
-									global $hookmanager;
-									$hookmanager->initHooks(array('payment_supplierdao'));
-									$parameters = array('facid' => $facid, 'invoice' => $invoice, 'remaintopay' => $remaintopay);
-									$action = 'CLOSEPAIDSUPPLIERINVOICE';
-									$reshook = $hookmanager->executeHooks('createPayment', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
-									if ($reshook < 0) {
-										$this->error = $hookmanager->error;
+									if ($error) {
+										setEventMessages($discount->error, $discount->errors, 'errors');
 										$error++;
-									} elseif ($reshook == 0) {
-										dol_syslog("Remain to pay for invoice " . $facid . " not null. We do nothing more.");
 									}
 								}
-							}
 
-							// Regenerate documents of invoices
-							if (empty($conf->global->MAIN_DISABLE_PDF_AUTOUPDATE)) {
-								$newlang = '';
-								$outputlangs = $langs;
-								if (getDolGlobalInt('MAIN_MULTILANGS') && empty($newlang)) {
-									$newlang = $invoice->thirdparty->default_lang;
+								// Set invoice to paid
+								if (!$error) {
+									$result = $invoice->setPaid($user, '', '');
+									if ($result < 0) {
+										$this->error = $invoice->error;
+										$error++;
+									}
 								}
-								if (!empty($newlang)) {
-									$outputlangs = new Translate("", $conf);
-									$outputlangs->setDefaultLang($newlang);
-								}
-								$ret = $invoice->fetch($facid); // Reload to get new records
-								$result = $invoice->generateDocument($invoice->model_pdf, $outputlangs);
-								if ($result < 0) {
-									setEventMessages($invoice->error, $invoice->errors, 'errors');
+							} else {
+								// hook to have an option to automatically close a closable invoice with less payment than the total amount (e.g. agreed cash discount terms)
+								global $hookmanager;
+								$hookmanager->initHooks(array('payment_supplierdao'));
+								$parameters = array('facid' => $facid, 'invoice' => $invoice, 'remaintopay' => $remaintopay);
+								$action = 'CLOSEPAIDSUPPLIERINVOICE';
+								$reshook = $hookmanager->executeHooks('createPayment', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
+								if ($reshook < 0) {
+									$this->error = $hookmanager->error;
 									$error++;
+								} elseif ($reshook == 0) {
+									dol_syslog("Remain to pay for invoice " . $facid . " not null. We do nothing more.");
 								}
 							}
-						} else {
-							$this->error = $this->db->lasterror();
-							$error++;
+						}
+
+						// Regenerate documents of invoices
+						if (empty($conf->global->MAIN_DISABLE_PDF_AUTOUPDATE)) {
+							$newlang = '';
+							$outputlangs = $langs;
+							if (getDolGlobalInt('MAIN_MULTILANGS') && empty($newlang)) {
+								$newlang = $invoice->thirdparty->default_lang;
+							}
+							if (!empty($newlang)) {
+								$outputlangs = new Translate("", $conf);
+								$outputlangs->setDefaultLang($newlang);
+							}
+							$ret = $invoice->fetch($facid); // Reload to get new records
+							$result = $invoice->generateDocument($invoice->model_pdf, $outputlangs);
+							if ($result < 0) {
+								setEventMessages($invoice->error, $invoice->errors, 'errors');
+								$error++;
+							}
 						}
 					} else {
-						dol_syslog(get_class($this).'::Create Amount line '.$key.' not a number. We discard it.');
-					}
-				}
-
-				if (!$error) {
-					// Call trigger
-					$result = $this->call_trigger('PAYMENT_SUPPLIER_CREATE', $user);
-					if ($result < 0) {
+						$this->error = $this->db->lasterror();
 						$error++;
 					}
-					// End call triggers
+				} else {
+					dol_syslog(get_class($this).'::Create Amount line '.$key.' not a number. We discard it.');
 				}
-			} else {
-				$this->error = $this->db->lasterror();
-				$error++;
+			}
+
+			if (!$error) {
+				// Call trigger
+				$result = $this->call_trigger('PAYMENT_SUPPLIER_CREATE', $user);
+				if ($result < 0) {
+					$error++;
+				}
+				// End call triggers
 			}
 		} else {
-			$this->error = "ErrorTotalIsNull";
-			dol_syslog('PaiementFourn::Create Error '.$this->error, LOG_ERR);
+			$this->error = $this->db->lasterror();
 			$error++;
 		}
 
-		if ($totalamount <> 0 && $error == 0) { // On accepte les montants negatifs
+		if ($error == 0) {
 			$this->amount = $total;
 			$this->total = $total;
 			$this->multicurrency_amount = $mtotal;
