@@ -2724,3 +2724,32 @@ function getTaskProgressBadge($task, $label = '', $tooltip = '')
 
 	return $out;
 }
+
+// Tri des projets
+function project_sort_by_name($tasksarray) {
+    $projectLabelsArray = [];
+    $lastProjectLabel = '';
+    
+    foreach($tasksarray as $task) {
+        $label = $task->projectlabel;
+        
+        if($label != $lastProjectLabel) {
+            $lastProjectLabel = $label;
+            $projectLabelsArray[] = $label;
+        }
+    }
+    
+    sort($projectLabelsArray);
+    
+    $res = array();
+    
+    foreach($projectLabelsArray as $projectLabel) {
+        foreach($tasksarray as $task) {
+            if($task->projectlabel == $projectLabel) {
+                $res[] = $task;
+            }
+        }
+    }
+    
+    return $res;
+}

@@ -743,6 +743,10 @@ if (count($tasksarray) > 0) {
 
 	$j = 0;
 	$level = 0;
+	
+	// Tri des projets
+	$tasksarray = project_sort_by_name($tasksarray);
+	
 	$totalforvisibletasks = projectLinesPerWeek($j, $firstdaytoshow, $usertoprocess, 0, $tasksarray, $level, $projectsrole, $tasksrole, $mine, $restrictviewformytask, $isavailable, 0, $arrayfields, $extrafields);
 	//var_dump($totalforvisibletasks);
 
