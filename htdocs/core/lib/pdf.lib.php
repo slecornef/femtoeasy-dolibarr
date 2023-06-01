@@ -1384,7 +1384,7 @@ function pdf_writelinedesc(&$pdf, $object, $i, $outputlangs, $w, $h, $posx, $pos
 		//var_dump($labelproductservice);exit;
 
 		// Description
-		$pdf->writeHTMLCell($w, $h, $posx, $posy, $outputlangs->convToOutputCharset($labelproductservice), 0, 1, false, true, 'J', true);
+		$pdf->writeHTMLCell($w, $h, $posx, $posy, ($i + 1) . '. ' . $outputlangs->convToOutputCharset($labelproductservice), 0, 1, false, true, 'J', true);
 		$result .= $labelproductservice;
 	}
 	return $result;
