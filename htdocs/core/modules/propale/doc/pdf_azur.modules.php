@@ -1117,6 +1117,29 @@ class pdf_azur extends ModelePDFPropales
 			}
 		}
 
+		// Conditions générales de vente
+		$codeLangue = substr($outputlangs->defaultlang, 0, 2);
+		
+		if($codeLangue == 'fr') {
+		    $cgvLabel = 'Conditions générales de vente :';
+		    $cgvUrl = 'http://www.femtoeasy.eu/Conditions_Generales_de_Vente_FemtoEasy.pdf';
+		    $cgvUrlDecalage = 45;
+		} else {
+		    $cgvLabel = 'Terms of Sales:';
+		    $cgvUrl = 'http://www.femtoeasy.eu/Terms_of_Sales_FemtoEasy';
+		    $cgvUrlDecalage = 41;
+		}
+		
+		$pdf->SetXY($this->marge_gauche, $posy);
+		$pdf->SetFont('','B', $default_font_size - 2);
+		$pdf->MultiCell(100, 3, $cgvLabel,0,'L',0);
+		
+		$pdf->SetXY($this->marge_gauche + $cgvUrlDecalage, $posy);
+		$pdf->SetFont('','', $default_font_size - 2);
+		//$pdf->MultiCell(100, 3, $cgvUrl,0,'L',0);
+		$pdf->Write(0, $cgvUrl, $cgvUrl, false, 'L', true);
+		$posy=$pdf->GetY()+1;
+		
 		return $posy;
 	}
 
