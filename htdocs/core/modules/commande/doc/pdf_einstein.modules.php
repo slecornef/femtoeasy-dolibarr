@@ -1352,7 +1352,7 @@ class pdf_einstein extends ModelePDFCommandes
 		$pdf->MultiCell(100, 4, $outputlangs->transnoentities("Ref")." : ".$outputlangs->convToOutputCharset($object->ref), '', 'R');
 		*/
 
-		$posy += 3;
+		$posy += 8;
 		$pdf->SetFont('', '', $default_font_size - 1);
 
 		if ($object->ref_client) {
