@@ -713,6 +713,13 @@ if (empty($reshook)) {
 			$error++;
 		}
 
+		// Affectation de la catégorie de dépenses du tiers
+		if($object->array_options['options_categoriedepense'] == "0") {
+		    $soc=new Societe($db);
+		    $soc->fetch(GETPOST('socid', 'int'));
+		    $object->array_options['options_categoriedepense'] = $soc->array_options["options_categoriedepense"];
+		}
+		
 		$dateinvoice = dol_mktime(0, 0, 0, GETPOST('remonth', 'int'), GETPOST('reday', 'int'), GETPOST('reyear', 'int'), 'tzserver');	// If we enter the 02 january, we need to save the 02 january for server
 		$datedue = dol_mktime(0, 0, 0, GETPOST('echmonth', 'int'), GETPOST('echday', 'int'), GETPOST('echyear', 'int'), 'tzserver');
 		//var_dump($dateinvoice.' '.dol_print_date($dateinvoice, 'dayhour'));
@@ -1484,6 +1491,12 @@ if (empty($reshook)) {
 		// Extrafields
 		$extralabelsline = $extrafields->fetch_name_optionals_label($object->table_element_line);
 		$array_options = $extrafields->getOptionalsFromPost($object->table_element_line, $predef);
+		
+		// Nouvelle ligne : affectation de la catégorie de dépense de la facture
+		if($array_options['options_categoriedepense'] == "0") {
+		    $array_options['options_categoriedepense'] = $object->array_options['options_categoriedepense'];
+		}
+		
 		// Unset extrafield
 		if (is_array($extralabelsline)) {
 			// Get extra fields
