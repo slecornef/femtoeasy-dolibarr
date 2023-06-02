@@ -455,6 +455,12 @@ if (empty($reshook)) {
 		// Extrafields
 		$extralabelsline = $extrafields->fetch_name_optionals_label($object->table_element_line);
 		$array_options = $extrafields->getOptionalsFromPost($object->table_element_line, $predef);
+		
+		// Nouvelle ligne : affectation de la catégorie de dépense de la commande
+		if($array_options['options_categoriedepense'] == "0") {
+		    $array_options['options_categoriedepense'] = $object->array_options['options_categoriedepense'];
+		}
+		
 		// Unset extrafield
 		if (is_array($extralabelsline)) {
 			// Get extra fields
@@ -1248,6 +1254,13 @@ if (empty($reshook)) {
 				$ret = $extrafields->setOptionalsFromPost(null, $object);
 				if ($ret < 0) {
 					$error++;
+				}
+				
+				// Affectation de la catégorie de dépenses du tiers
+				if($object->array_options['options_categoriedepense'] == "0") {
+				    $soc=new societe($db);
+				    $soc->fetch($socid);
+				    $object->array_options['options_categoriedepense'] = $soc->array_options["options_categoriedepense"];
 				}
 			}
 
