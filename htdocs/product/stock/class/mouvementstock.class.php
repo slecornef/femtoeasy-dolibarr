@@ -503,11 +503,13 @@ class MouvementStock extends CommonObject
 					if ($price > 0 || (!empty($conf->global->STOCK_UPDATE_AWP_EVEN_WHEN_ENTRY_PRICE_IS_NULL) && $price == 0)) {
 						$oldqtytouse = ($oldqty >= 0 ? $oldqty : 0);
 						// We make a test on oldpmp>0 to avoid to use normal rule on old data with no pmp field defined
-						if ($oldpmp > 0) {
-							$newpmp = price2num((($oldqtytouse * $oldpmp) + ($qty * $price)) / ($oldqtytouse + $qty), 'MU');
-						} else {
+						
+						// On utilise toujour le dernier prix pour la valorisation (ce n'est donc pas un prix moyen pondéré...)
+						// if ($oldpmp > 0) {
+						//	$newpmp = price2num((($oldqtytouse * $oldpmp) + ($qty * $price)) / ($oldqtytouse + $qty), 'MU');
+						// } else {
 							$newpmp = $price; // For this product, PMP was not yet set. We set it to input price.
-						}
+						// }
 						//print "oldqtytouse=".$oldqtytouse." oldpmp=".$oldpmp." oldqtywarehousetouse=".$oldqtywarehousetouse." ";
 						//print "qty=".$qty." newpmp=".$newpmp;
 						//exit;
