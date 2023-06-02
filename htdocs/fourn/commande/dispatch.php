@@ -668,7 +668,8 @@ if ($id > 0 || !empty($ref)) {
 		//$sql = "SELECT l.rowid, l.fk_product, l.subprice, l.remise_percent, l.ref AS sref, SUM(l.qty) as qty,";
 		$sql = "SELECT l.rowid, l.fk_product, l.subprice, l.remise_percent, l.ref AS sref, l.qty as qty,";
 		$sql .= " p.ref, p.label, p.tobatch, p.fk_default_warehouse";
-
+		$sql .= ", cd.code AS categoriedepense_code, cd.libelle AS categoriedepense_libelle";
+		
 		// Enable hooks to alter the SQL query (SELECT)
 		$parameters = array();
 		$reshook = $hookmanager->executeHooks(
@@ -683,7 +684,11 @@ if ($id > 0 || !empty($ref)) {
 		$sql .= $hookmanager->resPrint;
 
 		$sql .= " FROM ".MAIN_DB_PREFIX."commande_fournisseurdet as l";
+		$sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "commande_fournisseur as c ON l.fk_commande = c.rowid"; // SLE
 		$sql .= " LEFT JOIN ".MAIN_DB_PREFIX."product as p ON l.fk_product=p.rowid";
+		$sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "commande_fournisseurdet_extrafields as ef ON ef.fk_object = l.rowid";
+		$sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "commande_fournisseur_extrafields as cef ON cef.fk_object = c.rowid";
+		$sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "categories_depenses as cd ON cd.rowid = IF(ef.categoriedepense > 0, ef.categoriedepense, cef.categoriedepense)";
 		$sql .= " WHERE l.fk_commande = ".((int) $object->id);
 		if (empty($conf->global->STOCK_SUPPORTS_SERVICES)) {
 			$sql .= " AND l.product_type = 0";
@@ -1007,10 +1012,55 @@ if ($id > 0 || !empty($ref)) {
 
 						// Warehouse
 						print '<td class="right">';
+						
+						// SLE
+						$fk_default_warehouse = GETPOST("entrepot" . $suffix);
+						print '(catégorie : ' . $objp->categoriedepense_libelle . ')';
+						
+						// Affection auto de l'entrepôt en fonction du produit
+						if(!$fk_default_warehouse) {
+						    $fk_default_warehouse = $objp->fk_default_warehouse;
+						    
+						    if(!$fk_default_warehouse || $objp->categoriedepense_code == 'R&D') { // R&D surcharge la configuration éventuelle du produit
+						        switch($objp->categoriedepense_code) {
+						            case 'COMP-PROD':
+						                if(substr($objp->ref, 0, 5) == 'PART-') {
+						                    $fk_default_warehouse = 2; // Stock
+						                } else {
+						                    switch($object->socid) {
+						                        case 210: // IDS
+						                        case 567: // I2S
+						                        case 303: // Flir
+						                        case 202: // RS
+						                        case 254: // Eureka (valises)
+						                            $fk_default_warehouse = 2; // Stock
+						                            break;
+						                        case 206 : // Thorlabs
+						                        case 309 : // OptoSigma
+						                        case 211 : // Newport
+						                        case 248 : // Edmund
+						                            $fk_default_warehouse = 5; // Flux tendu
+						                            break;
+						                        default:
+						                            $fk_default_warehouse = 3; // Prod
+						                            break;
+						                    }
+						                }
+						                break;
+						            case 'R&D':
+						                $fk_default_warehouse = 4; // R&D
+						                break;
+						            default:
+						                $fk_default_warehouse = 2; // Stock
+						                break;
+						        }
+						    }
+						}
+						
 						if (count($listwarehouses) > 1) {
-							print $formproduct->selectWarehouses(GETPOST("entrepot".$suffix) ?GETPOST("entrepot".$suffix) : ($objp->fk_default_warehouse ? $objp->fk_default_warehouse : ''), "entrepot".$suffix, '', 1, 0, $objp->fk_product, '', 1, 0, null, 'csswarehouse'.$suffix);
+						    print $formproduct->selectWarehouses($fk_default_warehouse, "entrepot".$suffix, '', 1, 0, $objp->fk_product, '', 1, 0, null, 'csswarehouse'.$suffix);
 						} elseif (count($listwarehouses) == 1) {
-							print $formproduct->selectWarehouses(GETPOST("entrepot".$suffix) ?GETPOST("entrepot".$suffix) : ($objp->fk_default_warehouse ? $objp->fk_default_warehouse : ''), "entrepot".$suffix, '', 0, 0, $objp->fk_product, '', 1, 0, null, 'csswarehouse'.$suffix);
+						    print $formproduct->selectWarehouses($fk_default_warehouse, "entrepot".$suffix, '', 0, 0, $objp->fk_product, '', 1, 0, null, 'csswarehouse'.$suffix);
 						} else {
 							$langs->load("errors");
 							print $langs->trans("ErrorNoWarehouseDefined");
