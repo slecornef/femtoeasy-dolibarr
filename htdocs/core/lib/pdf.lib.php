@@ -431,7 +431,7 @@ function pdfBuildThirdpartyName($thirdparty, Translate $outputlangs, $includeali
  *      @param  Object                $object               Object we want to build document for
  * 		@return	string					    		        String with full address
  */
-function pdf_build_address($outputlangs, $sourcecompany, $targetcompany = '', $targetcontact = '', $usecontact = 0, $mode = 'source', $object = null)
+function pdf_build_address($outputlangs, $sourcecompany, $targetcompany = '', $targetcontact = '', $usecontact = 0, $mode = 'source', $object = null, $sourcecontact = null)
 {
 	global $conf, $hookmanager;
 
@@ -467,17 +467,26 @@ function pdf_build_address($outputlangs, $sourcecompany, $targetcompany = '', $t
 			$stringaddress .= ($stringaddress ? "\n" : '').$outputlangs->convToOutputCharset(dol_format_address($sourcecompany, $withCountry, "\n", $outputlangs, 0, '', ', '))."\n";
 
 			if (empty($conf->global->MAIN_PDF_DISABLESOURCEDETAILS)) {
-				// Phone
-				if ($sourcecompany->phone) {
-					$stringaddress .= ($stringaddress ? "\n" : '').$outputlangs->transnoentities("PhoneShort").": ".$outputlangs->convToOutputCharset($sourcecompany->phone);
-				}
+			    // Contact
+			    if($sourcecontact) {
+			        $stringaddress .= ($stringaddress ? "\n" : '' ) . "Contact: " . $outputlangs->convToOutputCharset($sourcecontact->getFullName($outputlangs, 0));
+			    }
+			    
+			    // Phone
+			    if($sourcecontact && $sourcecontact->office_phone) {
+			        $stringaddress .= ($stringaddress ? "\n" : '' ).$outputlangs->transnoentities("PhoneShort").": ".$outputlangs->convToOutputCharset($sourcecontact->office_phone);
+			    } else if ($sourcecompany->phone) {
+			        $stringaddress .= ($stringaddress ? "\n" : '').$outputlangs->transnoentities("PhoneShort").": ".$outputlangs->convToOutputCharset($sourcecompany->phone);
+			    }
 				// Fax
 				if ($sourcecompany->fax) {
 					$stringaddress .= ($stringaddress ? ($sourcecompany->phone ? " - " : "\n") : '').$outputlangs->transnoentities("Fax").": ".$outputlangs->convToOutputCharset($sourcecompany->fax);
 				}
 				// EMail
-				if ($sourcecompany->email) {
-					$stringaddress .= ($stringaddress ? "\n" : '').$outputlangs->transnoentities("Email").": ".$outputlangs->convToOutputCharset($sourcecompany->email);
+				if($sourcecontact && $sourcecontact->email) {
+				    $stringaddress .= ($stringaddress ? "\n" : '' ).$outputlangs->transnoentities("Email").": ".$outputlangs->convToOutputCharset($sourcecontact->email);
+				} else if ($sourcecompany->email) {
+				    $stringaddress .= ($stringaddress ? "\n" : '').$outputlangs->transnoentities("Email").": ".$outputlangs->convToOutputCharset($sourcecompany->email);
 				}
 				// Web
 				if ($sourcecompany->url) {
