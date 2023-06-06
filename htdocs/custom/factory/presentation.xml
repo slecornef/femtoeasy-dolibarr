@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<presentation lang="fr_FR">
+	<nommodule>Factory, la GPAO pour Dolibarr</nommodule>
+	<para imgsrc="../factory/img/composition-crea.png">
+		<titre>
+			Factory est l'outil de GPAO de Dolibarr
+		</titre>
+		Définition de la composition du produit composé à partir de produits et services prédéfinis
+		Récupération des prix d'achat et de vente des produits composants et de la marge et même la mise à jour des prix des produits composés à partir des composants.
+		Le lancement et suivi des fabrications avec les fabrications directes et les ordres de fabrication qui apportent la planification.
+	</para>
+	<para imgsrc="../factory/img/OF-mouvement-stock.png">
+		<titre>
+			 Factory créé les mouvements de stock des produits composés et composants
+		</titre>
+		Décrémentation des stock de produits utilisés dans une fabrication
+		Incrémentation des stocks de produits fabriqués
+	</para>
+	<para>
+		 Factory apporte aussi la fonctionnalité de création de déclinaisons de produits : à partir des catégories de produits définies dans la configuration du module, Factory créé les déclinaisons de produits selon leurs variantes.
+		 Combiné au module Projet, Factory permet l'enregistrement de compositions sur des taches et permet le suivi des consommations et leur transfert vers d'autres taches.
+	</para>
+	<service>
+	</service>
+	<alerte>
+	</alerte>
+</presentation>
+<additionalmodules>
+	<module name="equipement" version="0.0.0"/>
+	<module name="restock" version="0.0.0" />
+<additionalmodules>
