@@ -26,6 +26,7 @@
  *      \brief      File of class to manage notifications
  */
 require_once DOL_DOCUMENT_ROOT.'/core/class/CMailFile.class.php';
+require_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
 
 /**
  *      Class to manage notifications
@@ -399,7 +400,9 @@ class Notify
 		$oldref = (empty($object->oldref) ? $object->ref : $object->oldref);
 		$newref = (empty($object->newref) ? $object->ref : $object->newref);
 		
-		// Traitement des doublons
+		$nbPrevious = 0;
+		
+		// Traitement des doublons et infos supplémentaires
 		switch ($notifcode) {
 		    case 'ORDER_SUPPLIER_APPROVE':
 		        $sql  = 'SELECT COUNT(*) AS nb ';
@@ -420,6 +423,25 @@ class Notify
 		                    // Already sent
 		                    return 0;
 		                }
+		            }
+		        }
+		        break;
+		        
+		    case 'ORDER_VALIDATE':
+		        $sql  = 'SELECT COUNT(*) AS nb ';
+		        $sql .= 'FROM llx_actioncomm ac ';
+		        $sql .= 'WHERE ac.elementtype = \'order\' ';
+		        $sql .= 'AND label LIKE \'Commande%validée\' ';
+		        $sql .= 'AND fk_element = ' . $object->id;
+		        
+		        $resql = $this->db->query($sql);
+		        
+		        if($resql) {
+		            $num = $this->db->num_rows($resql);
+		            
+		            if($num > 0) {
+		                $obj = $this->db->fetch_object($resql);
+		                $nbPrevious = $obj->nb;
 		            }
 		        }
 		        break;
@@ -775,7 +797,19 @@ class Notify
 						$dir_output = $conf->commande->dir_output."/".get_exdir(0, 0, 0, 1, $object, 'commande');
 						$object_type = 'order';
 						$mesg = $langs->transnoentitiesnoconv("EMailTextOrderValidated", $link);
-						$subject .= ' - commande validée';
+						
+						
+						if($nbPrevious > 1) {
+						    $subject .= ' - commande à nouveau validée';
+						} else {
+						    $subject .= ' - commande validée';
+						}
+						
+						// Précommande ?
+						if($object->array_options['options_statutspecial'] == '2') {
+						    $subject .= ' (précommande)';
+						}
+						
 						break;
 					case 'PROPAL_VALIDATE':
 						$link = '<a href="'.$urlwithroot.'/comm/propal/card.php?id='.$object->id.'&entity='.$object->entity.'">'.$newref.'</a>';
