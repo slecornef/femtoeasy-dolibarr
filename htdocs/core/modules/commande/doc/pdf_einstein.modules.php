@@ -818,6 +818,30 @@ class pdf_einstein extends ModelePDFCommandes
 			$posy = $pdf->GetY() + 1;
 		}
 
+		// Incoterm
+		$incoterm = $object->array_options['options_incoterm'];
+		
+		if($incoterm) {
+		    // Incoterm en fonction de la langue
+		    if($incoterm == "EXW Pessac") {
+		        $fullIncoterm = $outputlangs->transnoentities("IncotermExwPessac");
+		        
+		        if($fullIncoterm != "IncotermExwPessac") {
+		            $incoterm = $fullIncoterm;
+		        }
+		    }
+		    
+		    $pdf->SetFont('','B', $default_font_size - 2);
+		    $pdf->SetXY($this->marge_gauche, $posy);
+		    $pdf->MultiCell(43, 4, 'Incoterm:', 0, 'L');
+		    
+		    $pdf->SetFont('','', $default_font_size - 2);
+		    $pdf->SetXY($posxval, $posy);
+		    $pdf->MultiCell(67, 4, $incoterm, 0,'L');
+		    
+		    $posy=$pdf->GetY() + 1;
+		}
+		
 		// Show payment mode
 		if ($object->mode_reglement_code
 			&& $object->mode_reglement_code != 'CHQ'
