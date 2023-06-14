@@ -1534,21 +1534,21 @@ if (is_object($objcanvas) && $objcanvas->displayCanvasExists($action)) {
 				print '<input name="size" class="width50" value="'.GETPOST('size').'"> x ';
 				print '<input name="sizewidth" class="width50" value="'.GETPOST('sizewidth').'"> x ';
 				print '<input name="sizeheight" class="width50" value="'.GETPOST('sizeheight').'">';
-				print $formproduct->selectMeasuringUnits("size_units", "size", GETPOSTISSET('size_units') ?GETPOST('size_units', 'alpha') : '0', 0, 2);
+				print $formproduct->selectMeasuringUnits("size_units", "size", GETPOSTISSET('size_units') ?GETPOST('size_units', 'alpha') : -3, 0, 2);
 				print '</td></tr>';
 			}
 			if (empty($conf->global->PRODUCT_DISABLE_SURFACE)) {
 				// Brut Surface
 				print '<tr><td>'.$langs->trans("Surface").'</td><td>';
 				print '<input name="surface" size="4" value="'.GETPOST('surface').'">';
-				print $formproduct->selectMeasuringUnits("surface_units", "surface", GETPOSTISSET('surface_units') ?GETPOST('surface_units', 'alpha') : '0', 0, 2);
+				print $formproduct->selectMeasuringUnits("surface_units", "surface", GETPOSTISSET('surface_units') ?GETPOST('surface_units', 'alpha') : -6, 0, 2);
 				print '</td></tr>';
 			}
 			if (empty($conf->global->PRODUCT_DISABLE_VOLUME)) {
 				// Brut Volume
 				print '<tr><td>'.$langs->trans("Volume").'</td><td>';
 				print '<input name="volume" size="4" value="'.GETPOST('volume').'">';
-				print $formproduct->selectMeasuringUnits("volume_units", "volume", GETPOSTISSET('volume_units') ?GETPOST('volume_units', 'alpha') : '0', 0, 2);
+				print $formproduct->selectMeasuringUnits("volume_units", "volume", GETPOSTISSET('volume_units') ?GETPOST('volume_units', 'alpha') : -9, 0, 2);
 				print '</td></tr>';
 			}
 
