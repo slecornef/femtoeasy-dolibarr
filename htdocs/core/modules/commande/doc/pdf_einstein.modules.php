@@ -831,11 +831,11 @@ class pdf_einstein extends ModelePDFCommandes
 		        }
 		    }
 		    
-		    $pdf->SetFont('','B', $default_font_size - 2);
+		    $pdf->SetFont('','B', $default_font_size - $diffsizetitle);
 		    $pdf->SetXY($this->marge_gauche, $posy);
 		    $pdf->MultiCell(43, 4, 'Incoterm:', 0, 'L');
 		    
-		    $pdf->SetFont('','', $default_font_size - 2);
+		    $pdf->SetFont('','', $default_font_size - $diffsizetitle);
 		    $pdf->SetXY($posxval, $posy);
 		    $pdf->MultiCell(67, 4, $incoterm, 0,'L');
 		    
