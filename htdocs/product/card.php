@@ -547,9 +547,9 @@ if (empty($reshook)) {
 			$object->barcode_type_coder     = $stdobject->barcode_type_coder;
 			$object->barcode_type_label     = $stdobject->barcode_type_label;
 
-			$object->description        	 = dol_htmlcleanlastbr(GETPOST('desc', 'restricthtml'));
+			$object->description        	 = dol_htmlcleanlastbr(GETPOST('desc', 'nohtml'));
 			$object->url = GETPOST('url');
-			$object->note_private          	 = dol_htmlcleanlastbr(GETPOST('note_private', 'restricthtml'));
+			$object->note_private          	 = dol_htmlcleanlastbr(GETPOST('note_private', 'nohtml'));
 			$object->note               	 = $object->note_private; // deprecated
 			$object->customcode              = GETPOST('customcode', 'alphanohtml');
 			$object->country_id = GETPOST('country_id', 'int');
@@ -707,12 +707,12 @@ if (empty($reshook)) {
 				}
 				$object->label                  = GETPOST('label', $label_security_check);
 
-				$desc = dol_htmlcleanlastbr(preg_replace('/&nbsp;$/', '', GETPOST('desc', 'restricthtml')));
+				$desc = dol_htmlcleanlastbr(preg_replace('/&nbsp;$/', '', GETPOST('desc', 'nohtml')));
 				$object->description            = $desc;
 
 				$object->url = GETPOST('url');
 				if (!empty($conf->global->MAIN_DISABLE_NOTES_TAB)) {
-					$object->note_private = dol_htmlcleanlastbr(GETPOST('note_private', 'restricthtml'));
+					$object->note_private = dol_htmlcleanlastbr(GETPOST('note_private', 'nohtml'));
 					$object->note = $object->note_private;
 				}
 				$object->customcode             = GETPOST('customcode', 'alpha');
