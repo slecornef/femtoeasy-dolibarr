@@ -103,9 +103,13 @@ if ($action == 'createof' ) {
 		// only for product buildable
 		if ($factory->is_FactoryProduct($line->fk_product) > 0) {
 			$factory->fk_product =$line->fk_product;
-			$factory->qty_planned=GETPOST("qty-".$line->id);
-			// seulement si il y a des choses à fabriquer
-			if ($factory->qty_planned > 0) {
+			
+			$qty = GETPOST("qty-".$line->id);
+			
+			// On crée un OF par produit fini
+			for($i = 0 ; $i < $qty ; $i++) {
+    			$factory->qty_planned = 1;
+    			
 				// on récupère le text de l'extrafields si besoin
 				if ($conf->global->factory_extrafieldsNameInfo) {
 					$sql = 'SELECT DISTINCT pe.'.$conf->global->factory_extrafieldsNameInfo. ' as addinforecup';
