@@ -272,9 +272,15 @@ if (! empty($object->lines)) {
 		}
 	}
 	if ($bproductToBuild) {
+	    $entrepotid = GETPOST("entrepotid");
+	    
+	    if(!$entrepotid) {
+	        $entrepotid = 11; // Entrepôt 'Produits finis' par défaut
+	    }
+	    
 		print '<tr class="liste_total">';
 		print '<td colspan=5 align=right>'.$langs->trans("Warehouse").' :';
-		print select_entrepot_list(GETPOST("entrepotid"),"entrepotid",0,1);
+		print select_entrepot_list($entrepotid,"entrepotid",0,1);
 		print '</td>';
 		print '<td  align=center><input type="submit" class="butAction" name="verifyof" value="'.$langs->trans("CreateOF").'"></td>';
 		print '</tr>';
