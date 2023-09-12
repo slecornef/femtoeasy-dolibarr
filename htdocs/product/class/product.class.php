@@ -6303,6 +6303,42 @@ class Product extends CommonObject
 
 		return $prodDurationHours;
 	}
+	
+	/**
+	 *  Return nb d'unités dans des ordres de fabrication qui n'ont pas de mouvements de stock
+	 *
+	 * @return int
+	 */
+	public function get_nb_of_non_consomme()
+	{
+	    return 1234;
+	    
+	    if($this->rowid <= 0) {
+	        return 0;
+	    }
+	    
+	    $sql = "SELECT IFNULL(SUM(qty_planned), 0) AS nb";
+        $sql .= " FROM " . $this->db->prefix() . "factorydet fd";
+        $sql .= " WHERE fk_product = " . ((int)$this->rowid);
+        $sql .= "    AND IFNULL(fk_mvtstockplanned, 0) = 0";
+
+        $resql = $this->db->query($sql);
+        
+        if($resql) {
+            $num = $this->db->num_rows($resql);
+            
+            if($num <= 0) {
+                return 0;
+            }
+            
+            $arr = $this->db->fetch_array($resql);
+            return $arr[0];
+        } else {
+            $this->error = $this->db->error() . ' sql=' . $sql;
+            return 0;
+        }
+	}
+	
 }
 
 /**
