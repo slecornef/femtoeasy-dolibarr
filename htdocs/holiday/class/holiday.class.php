@@ -1536,6 +1536,7 @@ class Holiday extends CommonObject
 		global $user, $langs;
 
 		$error = 0;
+		$updated = 0;
 
 		if (empty($userID) && empty($nbHoliday) && empty($fk_type)) {
 			$langs->load("holiday");
@@ -1543,20 +1544,18 @@ class Holiday extends CommonObject
 			// Si mise à jour pour tout le monde en début de mois
 			$now = dol_now();
 
-			$month = date('m', $now);
 			$newdateforlastupdate = dol_print_date($now, '%Y%m%d%H%M%S');
 
 			// Get month of last update
 			$lastUpdate = $this->getConfCP('lastUpdate', $newdateforlastupdate);
-			$monthLastUpdate = $lastUpdate[4].$lastUpdate[5];
-			//print 'month: '.$month.' lastUpdate:'.$lastUpdate.' monthLastUpdate:'.$monthLastUpdate;exit;
-
-			// If month date is not same than the one of last update (the one we saved in database), then we update the timestamp and balance of each open user.
-			if ($month != $monthLastUpdate) {
-				$this->db->begin();
-
+			
+			$numMonthLastUpdate = 12 * substr($lastUpdate, 0, 4) + substr($lastUpdate, 4, 2);
+			$numMonthNow = 12 * date('Y', $now) + date('m', $now);
+			
+			$this->db->begin();
+			
+			for($numMonth = $numMonthLastUpdate + 1 ; $numMonth <= $numMonthNow && !$error ; $numMonth++) {
 				$users = $this->fetchUsers(false, false, ' AND u.statut > 0');
-				$nbUser = count($users);
 
 				$sql = "UPDATE ".MAIN_DB_PREFIX."holiday_config SET";
 				$sql .= " value = '".$this->db->escape($newdateforlastupdate)."'";
@@ -1567,7 +1566,24 @@ class Holiday extends CommonObject
 
 				// Update each user counter
 				foreach ($users as $userCounter) {
-					$nbDaysToAdd = (isset($typeleaves[$userCounter['type']]['newbymonth']) ? $typeleaves[$userCounter['type']]['newbymonth'] : 0);
+				    $nbDaysToAdd = 0;
+				    
+				    // Traitement spécial pour les RTT
+				    if($userCounter['type'] == 4) {
+				        $sql = "SELECT rttannuels FROM ".MAIN_DB_PREFIX."user_extrafields WHERE fk_object = " . $userCounter['id'];
+				        $rttResult = $this->db->query($sql);
+				        
+				        if($rttResult) {
+				            $rttObj = $this->db->fetch_object($rttResult);
+				            
+				            if($rttObj) {
+				                $nbDaysToAdd = $rttObj->rttannuels / 12;
+				            }
+				        }
+				    } else {
+    					$nbDaysToAdd = (isset($typeleaves[$userCounter['type']]['newbymonth']) ? $typeleaves[$userCounter['type']]['newbymonth'] : 0);
+				    }
+				    
 					if (empty($nbDaysToAdd)) {
 						continue;
 					}
@@ -1588,15 +1604,21 @@ class Holiday extends CommonObject
 					}
 				}
 
-				if (!$error) {
-					$this->db->commit();
-					return 1;
-				} else {
-					$this->db->rollback();
-					return -1;
-				}
+				$updated = 1;
 			}
-
+			
+			if($updated) {
+    			if (!$error) {
+    			    $this->db->commit();
+    			    return 1;
+    			} else {
+    			    $this->db->rollback();
+    			    return -1;
+    			}
+			} else {
+			    $this->db->rollback();
+			}
+			
 			return 0;
 		} else {
 			// Mise à jour pour un utilisateur
