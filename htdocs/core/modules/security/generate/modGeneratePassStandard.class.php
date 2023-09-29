@@ -73,7 +73,7 @@ class modGeneratePassStandard extends ModeleGenPassword
 	{
 		$this->id = "standard";
 		$this->length = 12;
-		$this->length2 = 12;
+		$this->length2 = 9;
 
 		$this->db = $db;
 		$this->conf = $conf;
