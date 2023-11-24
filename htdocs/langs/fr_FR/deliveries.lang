@@ -4,6 +4,7 @@ DeliveryRef=Référence de livraison
 DeliveryCard=Fiche réception
 DeliveryOrder=Bon de réception
 DeliveryDate=Date de livraison
+SendingExpectedDate=Date prévue d'expédition
 CreateDeliveryOrder=Générer bon de réception
 DeliveryStateSaved=Le statut de livraison est enregistré
 SetDeliveryDate=Définir la date d'expédition
