@@ -707,7 +707,8 @@ if (empty($reshook)) {
 				}
 				$object->label                  = GETPOST('label', $label_security_check);
 
-				$desc = dol_htmlcleanlastbr(preg_replace('/&nbsp;$/', '', GETPOST('desc', 'nohtml')));
+				$desc = dol_htmlcleanlastbr(preg_replace('/&nbsp;$/', '', GETPOST('desc', 'converthtml')));
+				
 				$object->description            = $desc;
 
 				$object->url = GETPOST('url');
@@ -2004,7 +2005,7 @@ if (is_object($objcanvas) && $objcanvas->displayCanvasExists($action)) {
 			print '<tr><td class="tdtop">'.$langs->trans("Description").'</td><td>';
 
 			// We use dolibarr_details as type of DolEditor here, because we must not accept images as description is included into PDF and not accepted by TCPDF.
-			$doleditor = new DolEditor('desc', GETPOSTISSET('desc') ? GETPOST('desc', 'restricthtml') : $object->description, '', 160, 'dolibarr_details', '', false, true, getDolGlobalInt('FCKEDITOR_ENABLE_DETAILS'), ROWS_4, '90%');
+			$doleditor = new DolEditor('desc', GETPOSTISSET('desc') ? GETPOST('desc', 'unconverthtml') : htmlspecialchars_decode($object->description), '', 160, 'dolibarr_details', '', false, true, getDolGlobalInt('FCKEDITOR_ENABLE_DETAILS'), ROWS_4, '90%');
 			$doleditor->Create();
 
 			print "</td></tr>";
@@ -2512,7 +2513,7 @@ if (is_object($objcanvas) && $objcanvas->displayCanvasExists($action)) {
 			}
 
 			// Description
-			print '<tr><td class="tdtop">'.$langs->trans("Description").'</td><td>'.(dol_textishtml($object->description) ? $object->description : dol_nl2br($object->description, 1, true)).'</td></tr>';
+			print '<tr><td class="tdtop">'.$langs->trans("Description").'</td><td>'.(dol_nl2br($object->description, 1, true)).'</td></tr>';
 
 			// Public URL
 			if (empty($conf->global->PRODUCT_DISABLE_PUBLIC_URL)) {

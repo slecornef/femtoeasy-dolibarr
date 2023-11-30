@@ -962,6 +962,12 @@ function sanitizeVal($out = '', $check = 'alphanohtml', $filter = null, $options
 				$out = filter_var($out, $filter, $options);
 			}
 			break;
+		case 'converthtml':
+		    $out = htmlspecialchars($out);
+		    break;
+		case 'unconverthtml':
+		    $out = htmlspecialchars_decode($out);
+		    break;
 	}
 
 	return $out;

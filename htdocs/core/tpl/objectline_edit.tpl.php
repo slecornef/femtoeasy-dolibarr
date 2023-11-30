@@ -157,11 +157,11 @@ $coldisplay++;
 		if (!empty($conf->global->FCKEDITOR_ENABLE_DETAILS_FULL)) {
 			$toolbarname = 'dolibarr_notes';
 		}
-		$doleditor = new DolEditor('product_desc', GETPOSTISSET('product_desc') ? GETPOST('product_desc', 'restricthtml') : $line->description, '', (empty($conf->global->MAIN_DOLEDITOR_HEIGHT) ? 164 : $conf->global->MAIN_DOLEDITOR_HEIGHT), $toolbarname, '', false, true, $enable, $nbrows, '98%');
+		$doleditor = new DolEditor('product_desc', GETPOSTISSET('product_desc') ? GETPOST('product_desc', 'unconverthtml') : htmlspecialchars_decode($line->description), '', (empty($conf->global->MAIN_DOLEDITOR_HEIGHT) ? 164 : $conf->global->MAIN_DOLEDITOR_HEIGHT), $toolbarname, '', false, true, $enable, $nbrows, '98%');
 		$doleditor->Create();
 	} else {
 		print '<textarea id="product_desc" class="flat" name="product_desc" readonly style="width: 200px; height:80px;">';
-		print GETPOSTISSET('product_desc') ? GETPOST('product_desc', 'restricthtml') : $line->description;
+		print GETPOSTISSET('product_desc') ? GETPOST('product_desc', 'unconverthtml') : htmlspecialchars_decode($line->description);
 		print '</textarea>';
 	}
 
