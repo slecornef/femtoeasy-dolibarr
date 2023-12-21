@@ -916,7 +916,7 @@ if (empty($reshook)) {
 	} elseif ($action == 'addline' && $usercancreate) {		// Add line
 		// Set if we used free entry or predefined product
 		$predef = '';
-		$product_desc = (GETPOSTISSET('dp_desc') ? GETPOST('dp_desc', 'restricthtml') : '');
+		$product_desc = (GETPOSTISSET('dp_desc') ? GETPOST('dp_desc', 'converthtml') : '');
 
 		$price_ht = '';
 		$price_ht_devise = '';
@@ -1149,9 +1149,9 @@ if (empty($reshook)) {
 						$outputlangs->setDefaultLang($newlang);
 					}
 
-					$desc = (!empty($prod->multilangs[$outputlangs->defaultlang]["description"])) ? $prod->multilangs[$outputlangs->defaultlang]["description"] : $prod->description;
+					$desc = htmlspecialchars((!empty($prod->multilangs[$outputlangs->defaultlang]["description"])) ? $prod->multilangs[$outputlangs->defaultlang]["description"] : $prod->description);
 				} else {
-					$desc = $prod->description;
+				    $desc = htmlspecialchars($prod->description);
 				}
 
 				//If text set in desc is the same as product description (as now it's preloaded) whe add it only one time
@@ -1344,7 +1344,7 @@ if (empty($reshook)) {
 		}
 
 		// Clean parameters
-		$description = dol_htmlcleanlastbr(GETPOST('product_desc', 'restricthtml'));
+		$description = dol_htmlcleanlastbr(GETPOST('product_desc', 'converthtml'));
 
 		// Define vat_rate
 		$vat_rate = (GETPOST('tva_tx') ? GETPOST('tva_tx') : 0);
