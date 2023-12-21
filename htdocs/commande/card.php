@@ -655,7 +655,7 @@ if (empty($reshook)) {
 
 		// Set if we used free entry or predefined product
 		$predef = '';
-		$product_desc = (GETPOSTISSET('dp_desc') ? GETPOST('dp_desc', 'restricthtml') : '');
+		$product_desc = (GETPOSTISSET('dp_desc') ? GETPOST('dp_desc', 'converthtml') : '');
 
 		$price_ht = '';
 		$price_ht_devise = '';
@@ -911,9 +911,9 @@ if (empty($reshook)) {
 						$outputlangs->setDefaultLang($newlang);
 					}
 
-					$desc = (!empty($prod->multilangs[$outputlangs->defaultlang]["description"])) ? $prod->multilangs[$outputlangs->defaultlang]["description"] : $prod->description;
+					$desc = htmlspecialchars((!empty($prod->multilangs[$outputlangs->defaultlang]["description"])) ? $prod->multilangs[$outputlangs->defaultlang]["description"] : $prod->description);
 				} else {
-					$desc = $prod->description;
+				    $desc = htmlspecialchars($prod->description);
 				}
 
 				//If text set in desc is the same as product descpription (as now it's preloaded) whe add it only one time
