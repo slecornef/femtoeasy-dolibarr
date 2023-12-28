@@ -915,6 +915,39 @@ class CommandeFournisseur extends CommonOrder
 				//$result.='</a>';
 				$result .= '</span>';
 			}
+			
+			// Ajout du picto avec le détail de la commande
+			$this->fetch_lines();
+			
+			foreach($this->lines as $l) {
+			    $txtdetail .= '<li>';
+			    
+			    $txtdetail .= $l->qty . ' x ';
+			    
+			    if($l->product_ref) {
+			        $txtdetail .= htmlspecialchars($l->product_ref) . ' - ';
+			    }
+			    
+			    if($l->desc) {
+			        $txtdetail .= str_replace("\r\n", "<br/>", htmlspecialchars($l->desc));
+			    } else if($l->product_label) {
+			        $txtdetail .= htmlspecialchars($l->product_label);
+			    } else {
+			        $txtdetail .= '?';
+			    }
+			    
+			    $txtdetail .= '</li>';
+			}
+			
+			if($txtdetail) {
+			    $txtdetail = 'Détail  de la commande :<br><ul>' . $txtdetail . '</ul>';
+			    
+			    $result .= ' <span class="note inline-block">';
+			    $result .= '<a href="' . DOL_URL_ROOT . '/fourn/commande/card.php?id=' . $this->id . '" class="classfortooltip" title="' . dol_escape_htmltag($txtdetail) . '">';
+			    $result .= img_picto('', 'list', 'style="color:#999"');
+			    $result .= '</a>';
+			    $result .= '</span>';
+			}
 		}
 
 		global $action;
