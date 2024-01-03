@@ -3833,7 +3833,7 @@ class Propal extends CommonObject
 			}
 			
 			if($txtdetail) {
-			    $txtdetail = 'Détail  de la commande :<br><ul>' . $txtdetail . '</ul>';
+			    $txtdetail = 'Détail  du devis :<br><ul>' . $txtdetail . '</ul>';
 			    
 			    $result .= ' <span class="note inline-block">';
 			    $result .= '<a href="' . DOL_URL_ROOT . '/fourn/commande/card.php?id=' . $this->id . '" class="classfortooltip" title="' . dol_escape_htmltag($txtdetail) . '">';
