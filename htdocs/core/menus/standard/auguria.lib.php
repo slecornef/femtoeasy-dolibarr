@@ -159,6 +159,12 @@ function print_auguria_menu($db, $atarget, $type_user, &$tabMenu, &$menu, $noout
 
 		$title = $langs->trans("GoIntoSetupToChangeLogo");
 
+		print "\n <!-- Retour Intranet -->\n";
+		print_start_menu_entry_auguria('companylogo', 'class="tmenu tmenucompanylogo nohover"', 1);
+		print '<a href="https://intra.femtoeasy.eu" class="center '.$logoContainerAdditionalClass.' menulogocontainer"><img class="mycompany" title="Intranet" src="https://intra.femtoeasy.eu/res/intra.png" style="height: 40px; margin-top: 4px;"></a>'."\n";
+		print_end_menu_entry_auguria(4);
+		
+		
 		print "\n".'<!-- Show logo on menu -->'."\n";
 		print_start_menu_entry_auguria('companylogo', 'class="tmenu tmenucompanylogo nohover"', 1);
 
