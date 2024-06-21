@@ -2094,7 +2094,7 @@ function top_menu($head, $title = '', $target = '', $disablejs = 0, $disablehead
 		if (empty($conf->global->MAIN_OPTIMIZEFORTEXTBROWSER))
 		{
 		    $text = '<a href="https://wiki.femtoeasy.eu/index.php/Catégorie:Dolibarr"><span class="fa fa-wikipedia-w atoplogin"></span></a>';
-		    $toprightmenu.=@Form::textwithtooltip('',"Aide Femto Easy<br/>Procédures Femto Easy d'utilisation de Dolibarr sur le FemtoWiki",2,1,$text,'login_block_elem',2);
+		    $toprightmenu .= $form->textwithtooltip('',"Aide Femto Easy<br/>Procédures Femto Easy d'utilisation de Dolibarr sur le FemtoWiki",2,1,$text,'login_block_elem',2);
 		}
 		
 		// Link to Dolibarr wiki pages
