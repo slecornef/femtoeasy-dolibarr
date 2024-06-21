@@ -829,6 +829,12 @@ class pdf_einstein extends ModelePDFCommandes
 		        if($fullIncoterm != "IncotermExwPessac") {
 		            $incoterm = $fullIncoterm;
 		        }
+		    } else if($incoterm == "FCA Pessac") {
+		        $fullIncoterm = $outputlangs->transnoentities("IncotermFcaPessac");
+		        
+		        if($fullIncoterm != "IncotermFcaPessac") {
+		            $incoterm = $fullIncoterm;
+		        }
 		    }
 		    
 		    $pdf->SetFont('','B', $default_font_size - $diffsizetitle);
