@@ -1024,28 +1024,24 @@ if ($id > 0 || !empty($ref)) {
 						    if(!$fk_default_warehouse || $objp->categoriedepense_code == 'R&D') { // R&D surcharge la configuration éventuelle du produit
 						        switch($objp->categoriedepense_code) {
 						            case 'COMP-PROD':
-						                if(substr($objp->ref, 0, 5) == 'PART-') {
-						                    $fk_default_warehouse = 2; // Stock
-						                } else {
-						                    switch($object->socid) {
-						                        case 210: // IDS
-						                        case 567: // I2S
-						                        case 303: // Flir
-						                        case 202: // RS
-						                        case 254: // Eureka (valises)
-						                            $fk_default_warehouse = 2; // Stock
-						                            break;
-						                        case 206 : // Thorlabs
-						                        case 309 : // OptoSigma
-						                        case 211 : // Newport
-						                        case 248 : // Edmund
-						                            $fk_default_warehouse = 5; // Flux tendu
-						                            break;
-						                        default:
-						                            $fk_default_warehouse = 3; // Prod
-						                            break;
-						                    }
-						                }
+					                    switch($object->socid) {
+					                        case 210: // IDS
+					                        case 567: // I2S
+					                        case 303: // Flir
+					                        case 202: // RS
+					                        case 254: // Eureka (valises)
+					                            $fk_default_warehouse = 2; // Stock
+					                            break;
+					                        case 206 : // Thorlabs
+					                        case 309 : // OptoSigma
+					                        case 211 : // Newport
+					                        case 248 : // Edmund
+					                            $fk_default_warehouse = 5; // Flux tendu
+					                            break;
+					                        default:
+					                            $fk_default_warehouse = 3; // Prod
+					                            break;
+					                    }
 						                break;
 						            case 'R&D':
 						                $fk_default_warehouse = 4; // R&D
