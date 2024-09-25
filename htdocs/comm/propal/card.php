@@ -1149,9 +1149,11 @@ if (empty($reshook)) {
 						$outputlangs->setDefaultLang($newlang);
 					}
 
-					$desc = htmlspecialchars((!empty($prod->multilangs[$outputlangs->defaultlang]["description"])) ? $prod->multilangs[$outputlangs->defaultlang]["description"] : $prod->description);
+					// SLE : pas de htmlspecialchars
+					$desc = (!empty($prod->multilangs[$outputlangs->defaultlang]["description"])) ? $prod->multilangs[$outputlangs->defaultlang]["description"] : $prod->description;
 				} else {
-				    $desc = htmlspecialchars($prod->description);
+				    // SLE : pas de htmlspecialchars
+				    $desc = $prod->description;
 				}
 
 				//If text set in desc is the same as product description (as now it's preloaded) whe add it only one time
