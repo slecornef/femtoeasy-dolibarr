@@ -189,6 +189,9 @@ class Factory extends CommonObject
 		$sql.= ', '.($this->duration_planned?$this->duration_planned:'null');
 		$sql.= ', '.($this->qty_planned?$this->qty_planned:'null').', '.$user->id.' )';
 
+		$prods_arbo = null;
+		$error = 0;
+		
 		if (! $this->db->query($sql)) {
 			dol_print_error($this->db);
 			$this->db->rollback();
