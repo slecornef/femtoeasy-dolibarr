@@ -251,7 +251,7 @@ if ($id > 0 || !empty($ref)) {
 
 						print '<tr class="oddeven">';
 						print '<td>';
-						print $propalstatic->getNomUrl(1);
+						print $propalstatic->getNomUrl(1, '', '', 0, -1, 1);
 						print "</td>\n";
 						print '<td>'.$societestatic->getNomUrl(1).'</td>';
 						print '<td class="center">';

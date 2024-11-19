@@ -252,7 +252,8 @@ if ($id > 0 || !empty($ref)) {
 
 						print '<tr class="oddeven">';
 						print '<td>';
-						print $supplierorderstatic->getNomUrl(1);
+						//public function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $save_lastsearch_value = -1, $addlinktonotes = 0)
+						print $supplierorderstatic->getNomUrl(1, '', 0, -1, 1);
 						print "</td>\n";
 						print '<td>'.$societestatic->getNomUrl(1).'</td>';
 						print "<td>".$objp->code_client."</td>\n";

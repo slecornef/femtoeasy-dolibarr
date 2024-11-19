@@ -252,7 +252,7 @@ if ($id > 0 || !empty($ref)) {
 
 						print '<tr class="oddeven">';
 						print '<td>';
-						print $orderstatic->getNomUrl(1);
+						print $orderstatic->getNomUrl(1, '', 0, 0, 0, -1, 1);
 						print "</td>\n";
 						print '<td>'.$societestatic->getNomUrl(1).'</td>';
 						print "<td>".$objp->code_client."</td>\n";
