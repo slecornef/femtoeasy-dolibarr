@@ -1427,7 +1427,7 @@ while ($i < min($num, $limit)) {
 			}
 		}
 	}
-
+	
 	$usercancreadprice = getDolGlobalString('MAIN_USE_ADVANCED_PERMS')?$user->hasRight('product', 'product_advance', 'read_prices'):$user->hasRight('product', 'lire');
 	if ($product_static->isService()) {
 		$usercancreadprice = getDolGlobalString('MAIN_USE_ADVANCED_PERMS')?$user->hasRight('service', 'service_advance', 'read_prices'):$user->hasRight('service', 'lire');
@@ -1848,7 +1848,7 @@ while ($i < min($num, $limit)) {
 	// Limit alert
 	if (!empty($arrayfields['p.seuil_stock_alerte']['checked'])) {
 		print '<td class="right">';
-		if ($product_static->type != 1) {
+		if ($product_static->has_stock) {
 			print $obj->seuil_stock_alerte;
 		}
 		print '</td>';
@@ -1859,7 +1859,7 @@ while ($i < min($num, $limit)) {
 	// Desired stock
 	if (!empty($arrayfields['p.desiredstock']['checked'])) {
 		print '<td class="right">';
-		if ($product_static->type != 1) {
+		if ($product_static->has_stock) {
 			print $obj->desiredstock;
 		}
 		print '</td>';
@@ -1870,7 +1870,7 @@ while ($i < min($num, $limit)) {
 	// Stock real
 	if (!empty($arrayfields['p.stock']['checked'])) {
 		print '<td class="right">';
-		if ($product_static->type != 1) {
+		if ($product_static->has_stock) {
 			if ($obj->seuil_stock_alerte != '' && $product_static->stock_reel < (float) $obj->seuil_stock_alerte) {
 				print img_warning($langs->trans("StockLowerThanLimit", $obj->seuil_stock_alerte)).' ';
 			}
@@ -1886,7 +1886,7 @@ while ($i < min($num, $limit)) {
 	// Stock virtual
 	if (!empty($arrayfields['stock_virtual']['checked'])) {
 		print '<td class="right">';
-		if ($product_static->type != 1) {
+		if ($product_static->has_stock) {
 			if ($obj->seuil_stock_alerte != '' && $product_static->stock_theorique < (float) $obj->seuil_stock_alerte) {
 				print img_warning($langs->trans("StockLowerThanLimit", $obj->seuil_stock_alerte)).' ';
 			}

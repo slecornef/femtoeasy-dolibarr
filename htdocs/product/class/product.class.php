@@ -232,6 +232,13 @@ class Product extends CommonObject
 	public $stock_theorique;
 
 	/**
+	 * Indique si le stock est géré pour ce produit (pas un service, et pas le tag 'NOSTOCK')
+	 * 
+	 * @var bool
+	 */
+	public $has_stock;
+	
+	/**
 	 * Cost price
 	 *
 	 * @var float
@@ -5465,6 +5472,33 @@ class Product extends CommonObject
 		$this->stock_warehouse = array();
 		$this->stock_theorique = 0;
 
+		// On vérifie si on gère le stock pour ce produit
+		$this->has_stock = $this->type != 1;
+		
+		if($this->has_stock) {
+    		$sql = "
+                SELECT c.rowid
+                FROM llx_categorie_product cp
+                    LEFT JOIN llx_categorie c ON cp.fk_categorie = c.rowid
+                WHERE cp.fk_product = " . ((int) $this->id) . "
+                    AND c.label = 'NOSTOCK'
+                ";
+    		
+    		$resqlHasStock = $this->db->query($sql);
+    		
+    		if($resqlHasStock) {
+    		    $this->has_stock = $this->db->num_rows($resqlHasStock) == 0;
+    		    $this->db->free($resqlHasStock);
+    		} else {
+    		    $this->error = $this->db->lasterror();
+    		    return -1;
+    		}
+		}
+		
+		if(!$this->has_stock) {
+		    return 1;
+		}
+		
 		// Set filter on warehouse status
 		$warehouseStatus = array();
 		if (preg_match('/warehouseclosed/', $option)) {
