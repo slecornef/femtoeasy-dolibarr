@@ -5651,7 +5651,7 @@ function print_fleche_navigation($page, $file, $options = '', $nextpage = 0, $be
  *  @param	int		$html			Used for html output
  *  @return	string					String with formated amounts ('19,6' or '19,6%' or '8.5% (NPR)' or '8.5% *' or '19,6 (CODEX)')
  */
-function vatrate($rate, $addpercent = false, $info_bits = 0, $usestarfornpr = 0, $html = 0)
+function vatrate($rate, $addpercent = false, $info_bits = 0, $usestarfornpr = 0, $html = 0, $langs = '')
 {
 	$morelabel = '';
 
@@ -5672,7 +5672,7 @@ function vatrate($rate, $addpercent = false, $info_bits = 0, $usestarfornpr = 0,
 
 	// If rate is '9/9/9' we don't change it.  If rate is '9.000' we apply price()
 	if (!preg_match('/\//', $rate)) {
-		$ret = price($rate, 0, '', 0, 0).($addpercent ? '%' : '');
+		$ret = price($rate, 0, $langs, 0, 0).($addpercent ? '%' : '');
 	} else {
 		// TODO Split on / and output with a price2num to have clean numbers without ton of 000.
 		$ret = $rate.($addpercent ? '%' : '');

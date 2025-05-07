@@ -1859,7 +1859,7 @@ function dol_print_reduction($reduction, $langs)
 	if ($reduction == 100) {
 		$string = $langs->transnoentities("Offered");
 	} else {
-		$string = vatrate($reduction, true);
+		$string = vatrate($reduction, true, 0, 0, 0, $langs);
 	}
 
 	return $string;
