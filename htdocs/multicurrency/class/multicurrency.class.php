@@ -616,7 +616,7 @@ class MultiCurrency extends CommonObject
 		if ($conf->currency != getDolGlobalString('MULTICURRENCY_APP_SOURCE')) {
 			$alternate_source = 'USD'.$conf->currency;
 			if (!empty($TRate->$alternate_source)) {
-				$coef = $TRate->USDUSD / $TRate->$alternate_source;
+				$coef = 1.0 / $TRate->$alternate_source;
 				foreach ($TRate as $attr => &$rate) {
 					$rate *= $coef;
 				}
@@ -659,11 +659,13 @@ class MultiCurrency extends CommonObject
 				//$timestamp = $response->timestamp;
 
 				if ($this->recalculRates($TRate) >= 0) {
-					foreach ($TRate as $currency_code => $rate) {
+				    foreach ($TRate as $currency_code => $rate) {
 						$code = substr($currency_code, 3, 3);
 						$obj = new MultiCurrency($db);
 						if ($obj->fetch(null, $code) > 0) {
-							$obj->updateRate($rate);
+						    if($rate > 0) {
+    							$obj->updateRate($rate);
+						    }
 						} elseif ($addifnotfound) {
 							$this->addRateFromDolibarr($code, $rate);
 						}
