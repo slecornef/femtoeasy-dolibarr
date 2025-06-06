@@ -2668,6 +2668,8 @@ function getModuleDirForApiClass($moduleobject)
 		$moduledirforclass = 'mrp';
 	} elseif (in_array($moduleobject, array('products', 'expensereports', 'users', 'tickets', 'boms', 'receptions'))) {
 		$moduledirforclass = preg_replace('/s$/', '', $moduleobject);
+	} elseif ($moduleobject == 'ordersforproduct') {
+	    $moduledirforclass = 'custom/femtoeasy';
 	}
 
 	return $moduledirforclass;
