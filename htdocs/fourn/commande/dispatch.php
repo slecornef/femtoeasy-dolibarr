@@ -267,8 +267,10 @@ if ($action == 'dispatch' && $permissiontoreceive) {
 				}
 
 				if (!$error) {
-					$result = $object->dispatchProduct($user, GETPOST($prod, 'int'), GETPOST($qty), GETPOST($ent, 'int'), GETPOST($pu), GETPOST('comment'), '', '', '', GETPOST($fk_commandefourndet, 'int'), $notrigger);
-					if ($result < 0) {
+				    $productId = GETPOST($prod, 'int');
+				    
+				    $result = $object->dispatchProduct($user, $productId ? $productId : 0, GETPOST($qty), GETPOST($ent, 'int'), GETPOST($pu), GETPOST('comment'), '', '', '', GETPOST($fk_commandefourndet, 'int'), $notrigger);
+				    if ($result < 0) {
 						setEventMessages($object->error, $object->errors, 'errors');
 						$error++;
 					}
@@ -669,6 +671,7 @@ if ($id > 0 || !empty($ref)) {
 		$sql = "SELECT l.rowid, l.fk_product, l.subprice, l.remise_percent, l.ref AS sref, l.qty as qty,";
 		$sql .= " p.ref, p.label, p.tobatch, p.fk_default_warehouse";
 		$sql .= ", cd.code AS categoriedepense_code, cd.libelle AS categoriedepense_libelle";
+		$sql .= ", l.product_type AS product_type, l.description AS free_product_description";
 		
 		// Enable hooks to alter the SQL query (SELECT)
 		$parameters = array();
@@ -784,7 +787,7 @@ if ($id > 0 || !empty($ref)) {
 				$objp = $db->fetch_object($resql);
 
 				// On n'affiche pas les produits libres
-				if (!$objp->fk_product > 0) {
+				if ($objp->product_type == 1 && !$objp->fk_product > 0) {
 					$nbfreeproduct++;
 				} else {
 					$alreadydispatched = isset($products_dispatched[$objp->rowid])?$products_dispatched[$objp->rowid]:0;
@@ -816,8 +819,12 @@ if ($id > 0 || !empty($ref)) {
 							$tmpproduct = $conf->cache['product'][$objp->fk_product];
 						}
 
-						$linktoprod = $tmpproduct->getNomUrl(1);
-						$linktoprod .= ' - '.$objp->label."\n";
+						if ($objp->fk_product > 0) {
+    						$linktoprod = $tmpproduct->getNomUrl(1);
+    						$linktoprod .= ' - '.$objp->label."\n";
+						} else {
+						    $linktoprod = $objp->free_product_description . "\n";
+						}
 
 						if (isModEnabled('productbatch')) {
 							if ($objp->tobatch) {

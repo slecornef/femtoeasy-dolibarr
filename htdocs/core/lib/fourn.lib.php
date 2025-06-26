@@ -165,25 +165,36 @@ function ordersupplier_prepare_head(CommandeFournisseur $object)
 
 		//If dispach process running we add the number of item to dispatch into the head
 		if (in_array($object->statut, array($object::STATUS_ORDERSENT, $object::STATUS_RECEIVED_PARTIALLY, $object::STATUS_RECEIVED_COMPLETELY))) {
-			$sumQtyAllreadyDispatched = 0;
 			$sumQtyOrdered = 0;
 
 			if (empty($object->lines)) {
 				$object->fetch_lines();
 			}
 			$nbLinesOrdered = count($object->lines);
-			$dispachedLines = $object->getDispachedLines(1);
-			$nbDispachedLines = count($dispachedLines);
-
-			for ($line = 0 ; $line < $nbDispachedLines; $line++) {
-				$sumQtyAllreadyDispatched = $sumQtyAllreadyDispatched + $dispachedLines[$line]['qty'];
-			}
+			
 			for ($line = 0 ; $line < $nbLinesOrdered; $line++) {
 				//If line is a product of conf to manage stocks for services
 				if ($object->lines[$line]->product_type == 0 || !empty($conf->global->STOCK_SUPPORTS_SERVICES)) {
 					$sumQtyOrdered = $sumQtyOrdered + $object->lines[$line]->qty;
 				}
 			}
+			
+			// Dispatched : on fait une requête spécifique qui inclut les lignes sans code article
+			dol_syslog('ID ' . $object->id, LOG_WARNING);
+			$sql = 'SELECT COALESCE(SUM(qty), 0) AS qty
+                    FROM llx_commande_fournisseur_dispatch
+                    WHERE fk_commande = ' . $object->id;
+			
+			$resql = $db->query($sql);
+			
+			if($resql) {
+			    $sumQtyAllreadyDispatched = $db->fetch_object($resql)->qty;
+			    $db->free($resql);
+			} else {
+			    $sumQtyAllreadyDispatched = 'erreur';
+			    dol_syslog('ordersupplier_prepare_head:Erreur SQL : ' . $db->lasterror() . ', requête : ' . $sql, LOG_ERR);
+			}
+			
 			$head[$h][1] .= '<span class="badge marginleftonlyshort">'.price2num($sumQtyAllreadyDispatched, 'MS').' / '.price2num($sumQtyOrdered, 'MS').'</span>';
 		}
 
