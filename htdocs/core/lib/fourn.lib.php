@@ -180,7 +180,6 @@ function ordersupplier_prepare_head(CommandeFournisseur $object)
 			}
 			
 			// Dispatched : on fait une requête spécifique qui inclut les lignes sans code article
-			dol_syslog('ID ' . $object->id, LOG_WARNING);
 			$sql = 'SELECT COALESCE(SUM(qty), 0) AS qty
                     FROM llx_commande_fournisseur_dispatch
                     WHERE fk_commande = ' . $object->id;

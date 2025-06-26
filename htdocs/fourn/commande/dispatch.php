@@ -811,7 +811,7 @@ if ($id > 0 || !empty($ref)) {
 						print '<input id="qty_dispatched'.$suffix.'" type="hidden" value="'.(float) $alreadydispatched.'">';
 						print '<tr class="oddeven">';
 
-						if (empty($conf->cache['product'][$objp->fk_product])) {
+						if (empty($conf->cache['product'][$objp->fk_product]) && $objp->fk_product > 0) {
 							$tmpproduct = new Product($db);
 							$tmpproduct->fetch($objp->fk_product);
 							$conf->cache['product'][$objp->fk_product] = $tmpproduct;
@@ -825,7 +825,7 @@ if ($id > 0 || !empty($ref)) {
 						} else {
 						    $linktoprod = $objp->free_product_description . "\n";
 						}
-
+						
 						if (isModEnabled('productbatch')) {
 							if ($objp->tobatch) {
 								// Product
@@ -874,7 +874,7 @@ if ($id > 0 || !empty($ref)) {
 
 						// Already dispatched
 						print '<td class="right">'.$alreadydispatched.'</td>';
-
+						
 						if (isModEnabled('productbatch') && $objp->tobatch > 0) {
 							$type = 'batch';
 							print '<td class="right">';
@@ -982,7 +982,7 @@ if ($id > 0 || !empty($ref)) {
 
 							print '</td>';
 						}
-
+						
 						// Qty to dispatch
 						print '<td class="right">';
 						print '<input id="qty'.$suffix.'" name="qty'.$suffix.'" type="text" class="width50 right" value="'.(GETPOSTISSET('qty'.$suffix) ? GETPOST('qty'.$suffix, 'int') : (empty($conf->global->SUPPLIER_ORDER_DISPATCH_FORCE_QTY_INPUT_TO_ZERO) ? $remaintodispatch : 0)).'">';
@@ -1060,15 +1060,18 @@ if ($id > 0 || !empty($ref)) {
 						    }
 						}
 						
-						if (count($listwarehouses) > 1) {
-						    print $formproduct->selectWarehouses($fk_default_warehouse, "entrepot".$suffix, '', 1, 0, $objp->fk_product, '', 1, 0, null, 'csswarehouse'.$suffix);
-						} elseif (count($listwarehouses) == 1) {
-						    print $formproduct->selectWarehouses($fk_default_warehouse, "entrepot".$suffix, '', 0, 0, $objp->fk_product, '', 1, 0, null, 'csswarehouse'.$suffix);
+						if($objp->fk_product > 0) {
+    						if (count($listwarehouses) > 1) {
+    						    print $formproduct->selectWarehouses($fk_default_warehouse, "entrepot".$suffix, '', 1, 0, $objp->fk_product, '', 1, 0, null, 'csswarehouse'.$suffix);
+    						} elseif (count($listwarehouses) == 1) {
+    						    print $formproduct->selectWarehouses($fk_default_warehouse, "entrepot".$suffix, '', 0, 0, $objp->fk_product, '', 1, 0, null, 'csswarehouse'.$suffix);
+    						} else {
+    							$langs->load("errors");
+    							print $langs->trans("ErrorNoWarehouseDefined");
+    						}
 						} else {
-							$langs->load("errors");
-							print $langs->trans("ErrorNoWarehouseDefined");
+						    echo '<input type="hidden" name="entrepot' . $suffix . '" value="1" />';
 						}
-						print "</td>\n";
 
 						// Enable hooks to append additional columns
 						$parameters = array(
