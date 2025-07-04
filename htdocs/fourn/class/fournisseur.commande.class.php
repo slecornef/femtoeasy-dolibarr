@@ -3441,6 +3441,9 @@ class CommandeFournisseur extends CommonOrder
 						if (empty($conf->global->STOCK_SUPPORTS_SERVICES) && $line->product_type > 0) {
 							continue;
 						}
+						if($line->fk_product === null) {
+						    $line->fk_product = '0';
+						}
 						$qtywished[$line->fk_product] += $line->qty;
 					}
 
