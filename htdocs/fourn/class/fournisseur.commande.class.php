@@ -3475,8 +3475,8 @@ class CommandeFournisseur extends CommonOrder
 							}
 							return 4;
 						}
-					} elseif (!empty($conf->global->SUPPLIER_ORDER_MORE_THAN_WISHED)) {
-						//set livraison to 'tot' if more products received than wished. (and if $closeopenorder is set to 1 of course...)
+					} elseif (!empty($conf->global->SUPPLIER_ORDER_MORE_THAN_WISHED) && empty($keysinwishednotindelivered)) {
+					    //set livraison to 'tot' if more products received than wished. (and if $closeopenorder is set to 1 of course...)
 
 						$close = 0;
 
