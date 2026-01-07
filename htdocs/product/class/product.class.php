@@ -5541,7 +5541,21 @@ class Product extends CommonObject
 					if ((!preg_match('/nobatch/', $option)) && $this->hasbatch()) {
 						$this->stock_warehouse[$row->fk_entrepot]->detail_batch = Productbatch::findAll($this->db, $row->rowid, 1, $this->id);
 					}
-					$this->stock_reel += $row->reel;
+					
+					// SLE : on incrémente le stock réel seulement pour les entrepôts désirés
+					$compterStock = false;
+					
+					if($this->fk_default_warehouse) {
+					    $compterStock = $this->fk_default_warehouse == $row->fk_entrepot;
+					} else {
+					    // Pas d'entrepôt par défaut, on compte seulement sur certains stocks
+					    $compterStock = in_array($row->fk_entrepot, array(2, 3, 9, 11, 12)); // Stock, Prod, Prod2, Produits finis, Sécurité
+					}
+					
+					if($compterStock) {
+    					$this->stock_reel += $row->reel;
+					}
+					
 					$i++;
 				}
 			}
