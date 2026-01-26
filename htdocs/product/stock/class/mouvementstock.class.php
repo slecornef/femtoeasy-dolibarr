@@ -973,7 +973,12 @@ class MouvementStock extends CommonObject
 				require_once DOL_DOCUMENT_ROOT.'/product/inventory/class/inventory.class.php';
 				$origin = new Inventory($this->db);
 				break;
-
+				
+			case 'destockage':
+			    require_once DOL_DOCUMENT_ROOT.'/custom/femtoeasy/class/destockage.class.php';
+			    $origin = new Destockage($this->db);
+			    break;
+			    
 			default:
 				if ($origin_type) {
 					// Separate originetype with "@" : left part is class name, right part is module name
