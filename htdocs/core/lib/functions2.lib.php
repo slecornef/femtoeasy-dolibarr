@@ -2670,6 +2670,8 @@ function getModuleDirForApiClass($moduleobject)
 		$moduledirforclass = preg_replace('/s$/', '', $moduleobject);
 	} elseif ($moduleobject == 'ordersforproduct') {
 	    $moduledirforclass = 'custom/femtoeasy';
+	} elseif ($moduleobject == 'finishedproduct') {
+	    $moduledirforclass = 'custom/femtoeasy';
 	}
 
 	return $moduledirforclass;

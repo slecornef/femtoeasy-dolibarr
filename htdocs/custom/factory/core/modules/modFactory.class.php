@@ -188,6 +188,7 @@ class modfactory extends DolibarrModules
 			$mainmenu="products";
 
 		// factory Menu
+		/*
 		$r=0;
 		$this->menu[$r]=array(	'fk_menu'=>'fk_mainmenu='.$mainmenu,
 					'type'=>'left',	
@@ -245,7 +246,7 @@ class modfactory extends DolibarrModules
 					'perms'=>'1', 'target'=>'',
 					'user'=>2);
 		$r++;
-
+        */
         $rightParams = '';
         if ((int) DOL_VERSION >= 17) {
             $rightParams = ":\$user->rights->factory->lire";
