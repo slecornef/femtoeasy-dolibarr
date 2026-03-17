@@ -127,8 +127,14 @@ function product_prepare_head($object)
 
 		$h++;
 	}
+	
+	// SLE : pas d'onglet stock si étiquette 'NOSTOCK'
+	require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
+	$static_cat = new Categorie($db);
+	$categories_ids = $static_cat->containing($object->id, 0, 'id');
+	$nostock = is_array($categories_ids) && in_array(50, $categories_ids); // 50 : NOSTOCK
 
-	if ($object->isProduct() || ($object->isService() && !empty($conf->global->STOCK_SUPPORTS_SERVICES))) {    // If physical product we can stock (or service with option)
+	if (!$nostock && ($object->isProduct() || ($object->isService() && !empty($conf->global->STOCK_SUPPORTS_SERVICES)))) {    // If physical product we can stock (or service with option)
 		if (isModEnabled('stock') && $user->rights->stock->lire) {
 			$head[$h][0] = DOL_URL_ROOT."/product/stock/product.php?id=".$object->id;
 			$head[$h][1] = $langs->trans("Stock");
