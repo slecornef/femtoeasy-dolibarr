@@ -362,6 +362,7 @@ $sql .= ' FROM '.MAIN_DB_PREFIX.'product as p';
 $sql .= ' LEFT JOIN '.MAIN_DB_PREFIX.'product_stock as s ON p.rowid = s.fk_product';
 $list_warehouse = (empty($listofqualifiedwarehousesid) ? '0' : $listofqualifiedwarehousesid);
 $sql .= ' AND s.fk_entrepot  IN ('.$db->sanitize($list_warehouse) .')';
+$sql .= ' AND (p.fk_default_warehouse IS NULL OR s.fk_entrepot = p.fk_default_warehouse)'; // SLE : entrepôt par défaut
 
 //$sql .= ' LEFT JOIN '.MAIN_DB_PREFIX.'entrepot AS ent ON s.fk_entrepot = ent.rowid AND ent.entity IN('.getEntity('stock').')';
 if (!empty($conf->global->STOCK_ALLOW_ADD_LIMIT_STOCK_BY_WAREHOUSE) && $fk_entrepot > 0) {
@@ -478,6 +479,9 @@ if ($usevirtualstock) {
 	} else {
 		$sqlProductionToConsume = '0';
 		$sqlProductionToProduce = '0';
+		
+		// SLE : prise en compte des OF
+		$sqlProductionToConsume = '(SELECT COALESCE(rc.qty, 0) AS qty FROM v_reservation_composants rc WHERE rc.fk_product = p.rowid)';
 	}
 
 	$sql .= ' HAVING (';
