@@ -474,7 +474,7 @@ if (empty($reshook)) {
 			$units = GETPOST('units', 'int');
 
 			$object->ref                   = $ref;
-			$object->label                 = GETPOST('label', $label_security_check);
+			$object->label                 = dol_escape_htmltag(GETPOST('label', $label_security_check), 0, 1); // SLE
 			$object->price_base_type       = GETPOST('price_base_type', 'aZ09');
 			$object->mandatory_period 	   = !empty(GETPOST("mandatoryperiod", 'alpha')) ? 1 : 0;
 			if ($object->price_base_type == 'TTC') {
@@ -547,7 +547,7 @@ if (empty($reshook)) {
 			$object->barcode_type_coder     = $stdobject->barcode_type_coder;
 			$object->barcode_type_label     = $stdobject->barcode_type_label;
 
-			$object->description        	 = dol_htmlcleanlastbr(GETPOST('desc', 'nohtml'));
+			$object->description        	 = dol_escape_htmltag(dol_htmlcleanlastbr(GETPOST('desc', 'nohtml')), 0, 1); // SLE
 			$object->url = GETPOST('url');
 			$object->note_private          	 = dol_htmlcleanlastbr(GETPOST('note_private', 'nohtml'));
 			$object->note               	 = $object->note_private; // deprecated
