@@ -481,7 +481,7 @@ if ($usevirtualstock) {
 		$sqlProductionToProduce = '0';
 		
 		// SLE : prise en compte des OF
-		$sqlProductionToConsume = '(SELECT COALESCE(rc.qty, 0) AS qty FROM v_reservation_composants rc WHERE rc.fk_product = p.rowid)';
+		$sqlProductionToConsume = 'COALESCE((SELECT rc.qty AS qty FROM v_reservation_composants rc WHERE rc.fk_product = p.rowid), 0)';
 	}
 
 	$sql .= ' HAVING (';
