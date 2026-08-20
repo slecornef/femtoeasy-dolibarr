@@ -2318,6 +2318,26 @@ if ($action == 'create') {
 		include DOL_DOCUMENT_ROOT.'/core/tpl/ajaxrow.tpl.php';
 	}
 
+	if ($action == 'edit_mass_categoriedepense') {
+		$sql = "SELECT rowid, libelle FROM " . MAIN_DB_PREFIX . "categories_depenses ORDER BY libelle ASC";
+		$resql = $db->query($sql);
+		if ($resql) {
+			print '<div class="div-table-responsive-no-min"><table class="border centpercent">';
+			print '<tr><td class="titlefield">Action de masse (lignes cochées)</td><td>';
+			print 'Appliquer la catégorie de dépense : ';
+			print '<select name="mass_categoriedepense" id="mass_categoriedepense" class="flat">';
+			print '<option value="0">&nbsp;</option>';
+			while ($obj = $db->fetch_object($resql)) {
+				print '<option value="' . $obj->rowid . '">' . $obj->libelle . '</option>';
+			}
+			print '</select>';
+			print ' <input type="button" class="button" value="Appliquer" onclick="var form = document.getElementById(\'addproduct\'); form.elements[\'action\'].value=\'update_mass_categoriedepense\'; form.submit();">';
+			print ' <a class="button button-cancel" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '">Annuler</a>';
+			print '</td></tr>';
+			print '</table></div><br>';
+		}
+	}
+
 	print '<div class="div-table-responsive-no-min">';
 	print '<table id="tablelines" class="noborder noshadow centpercent">';
 
@@ -2331,7 +2351,7 @@ if ($action == 'create') {
 
 	// Show object lines
 	if (!empty($object->lines)) {
-		$ret = $object->printObjectLines($action, $societe, $mysoc, $lineid, 1);
+		$ret = $object->printObjectLines(($object->statut == 0 || $object->statut == 3) && $action != 'editline' ? 'selectlines' : $action, $societe, $mysoc, $lineid, 1);
 	}
 
 	$num = count($object->lines);
