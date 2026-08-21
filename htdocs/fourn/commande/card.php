@@ -2351,7 +2351,7 @@ if ($action == 'create') {
 
 	// Show object lines
 	if (!empty($object->lines)) {
-		$ret = $object->printObjectLines(($object->statut == 0 || $object->statut == 3) && $action != 'editline' ? 'selectlines' : $action, $societe, $mysoc, $lineid, 1);
+		$ret = $object->printObjectLines($action == 'edit_mass_categoriedepense' ? 'selectlines' : $action, $societe, $mysoc, $lineid, 1);
 	}
 
 	$num = count($object->lines);
