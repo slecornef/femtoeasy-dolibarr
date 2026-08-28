@@ -362,7 +362,13 @@ $sql .= ' FROM '.MAIN_DB_PREFIX.'product as p';
 $sql .= ' LEFT JOIN '.MAIN_DB_PREFIX.'product_stock as s ON p.rowid = s.fk_product';
 $list_warehouse = (empty($listofqualifiedwarehousesid) ? '0' : $listofqualifiedwarehousesid);
 $sql .= ' AND s.fk_entrepot  IN ('.$db->sanitize($list_warehouse) .')';
-$sql .= ' AND (p.fk_default_warehouse IS NULL OR s.fk_entrepot = p.fk_default_warehouse)'; // SLE : entrepôt par défaut
+// SLE : stock physique = entrepôt par défaut du produit, ou à défaut les entrepôts
+// marqués "Stock disponible" (extrafield 'stockdisponible' de l'entrepôt)
+$sql .= ' AND (CASE';
+$sql .= '     WHEN p.fk_default_warehouse IS NULL';
+$sql .= '         THEN s.fk_entrepot IN (SELECT ee.fk_object FROM '.MAIN_DB_PREFIX.'entrepot_extrafields ee WHERE ee.stockdisponible = 1)';
+$sql .= '         ELSE s.fk_entrepot = p.fk_default_warehouse';
+$sql .= '     END)';
 
 //$sql .= ' LEFT JOIN '.MAIN_DB_PREFIX.'entrepot AS ent ON s.fk_entrepot = ent.rowid AND ent.entity IN('.getEntity('stock').')';
 if (!empty($conf->global->STOCK_ALLOW_ADD_LIMIT_STOCK_BY_WAREHOUSE) && $fk_entrepot > 0) {

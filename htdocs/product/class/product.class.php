@@ -5515,11 +5515,12 @@ class Product extends CommonObject
 			}
 		}
 
-		$sql = "SELECT ps.rowid, ps.reel, ps.fk_entrepot";
+		$sql = "SELECT ps.rowid, ps.reel, ps.fk_entrepot, COALESCE(wef.stockdisponible, 0) as stockdisponible";
 		$sql .= " FROM ".$this->db->prefix()."product_stock as ps";
-		$sql .= ", ".$this->db->prefix()."entrepot as w";
+		$sql .= " INNER JOIN ".$this->db->prefix()."entrepot as w ON w.rowid = ps.fk_entrepot";
+		// SLE : attribut "Stock disponible" de l'entrepôt, voir le calcul de stock_reel plus bas
+		$sql .= " LEFT JOIN ".$this->db->prefix()."entrepot_extrafields as wef ON wef.fk_object = w.rowid";
 		$sql .= " WHERE w.entity IN (".getEntity('stock').")";
-		$sql .= " AND w.rowid = ps.fk_entrepot";
 		$sql .= " AND ps.fk_product = ".((int) $this->id);
 		if (count($warehouseStatus)) {
 			$sql .= " AND w.statut IN (".$this->db->sanitize(implode(',', $warehouseStatus)).")";
@@ -5548,14 +5549,19 @@ class Product extends CommonObject
 					if($this->fk_default_warehouse) {
 					    $compterStock = $this->fk_default_warehouse == $row->fk_entrepot;
 					} else {
-					    // Pas d'entrepôt par défaut, on compte seulement sur certains stocks
-					    $compterStock = in_array($row->fk_entrepot, array(2, 3, 9, 11, 12)); // Stock, Prod, Prod2, Produits finis, Sécurité
+					    // Pas d'entrepôt par défaut : on compte les entrepôts marqués "Stock disponible"
+					    // (extrafield 'stockdisponible' sur l'entrepôt, éditable sur sa fiche)
+					    $compterStock = !empty($row->stockdisponible);
 					}
 					
+					// SLE : exposé pour que les appelants (hook loadvirtualstock) sachent si cet
+					// entrepôt est déjà dans stock_reel, et évitent de le compter deux fois
+					$this->stock_warehouse[$row->fk_entrepot]->countedinreal = $compterStock;
+
 					if($compterStock) {
     					$this->stock_reel += $row->reel;
 					}
-					
+
 					$i++;
 				}
 			}
