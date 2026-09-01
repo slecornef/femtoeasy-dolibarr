@@ -7264,6 +7264,70 @@ function dol_htmlwithnojs($stringtoencode, $nouseofiframesandbox = 0, $check = '
 }
 
 /**
+ *	FEMTOEASY - Escape "orphan" angle brackets ("<" or ">") that are not part of a real HTML tag.
+ *
+ *	Some descriptions contain characters like "Parallelism: <30 arcsec" or "Power<1fir". When the
+ *	surrounding text is considered HTML (ex: because it contains "<br>"), dol_htmlentitiesbr() keeps
+ *	those "<"/">" as-is, and TCPDF (writeHTMLCell) or the browser then interpret "<30 arcsec..." as an
+ *	unterminated opening tag, which truncates the text.
+ *
+ *	This function keeps genuine HTML tags (only the ones from the allowed whitelist, with their
+ *	attributes and optional self-closing form), HTML comments, DOCTYPE and CDATA sections, and escapes
+ *	every other "<" and ">" into "&lt;"/"&gt;". Already-encoded entities (ex: "&lt;") are left untouched
+ *	because only literal "<"/">" characters are processed.
+ *
+ *	@param	string	$stringtoencode		String to process (may contain HTML)
+ *	@return	string						String with orphan angle brackets escaped
+ *  @see    dol_htmlentitiesbr(), dol_string_onlythesehtmltags()
+ */
+function dol_escapeorphanhtmltags($stringtoencode)
+{
+	if (is_null($stringtoencode) || $stringtoencode === '') {
+		return (string) $stringtoencode;
+	}
+	if (strpos($stringtoencode, '<') === false && strpos($stringtoencode, '>') === false) {
+		return $stringtoencode;
+	}
+
+	// Whitelist aligned with dol_string_onlythesehtmltags().
+	$allowed_tags = array(
+		"html", "head", "meta", "body", "article", "a", "abbr", "b", "blockquote", "br", "cite", "div", "dl", "dd", "dt", "em", "font", "img", "ins", "hr", "i", "li", "link",
+		"ol", "p", "q", "s", "section", "span", "strike", "strong", "title", "table", "tr", "th", "td", "u", "ul", "sup", "sub", "pre", "h1", "h2", "h3", "h4", "h5", "h6",
+	);
+	$allowed_tags_pattern = implode('|', $allowed_tags);
+
+	// A valid tag is: an HTML comment, a CDATA section, a DOCTYPE, or an opening/closing tag whose
+	// name is in the whitelist, followed by optional attributes and an optional self-closing slash.
+	$tagpattern = '#'
+		.'<!--.*?-->'
+		.'|<!\[CDATA\[.*?\]\]>'
+		.'|<!DOCTYPE[^>]*>'
+		.'|</?(?:'.$allowed_tags_pattern.')'
+		.	'(?:\s+[a-zA-Z_:][-a-zA-Z0-9_:.]*'
+		.		'(?:\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s"\'=<>`]+))?'
+		.	')*'
+		.	'\s*/?>'
+		.'#is';
+
+	$result = '';
+	$offset = 0;
+	while (preg_match($tagpattern, $stringtoencode, $reg, PREG_OFFSET_CAPTURE, $offset)) {
+		$start = $reg[0][1];
+		$tag = $reg[0][0];
+		// Text before the tag: escape orphan "<" and ">".
+		$before = substr($stringtoencode, $offset, $start - $offset);
+		$result .= str_replace(array('<', '>'), array('&lt;', '&gt;'), $before);
+		// Genuine tag: kept untouched.
+		$result .= $tag;
+		$offset = $start + strlen($tag);
+	}
+	// Remaining text after the last tag.
+	$result .= str_replace(array('<', '>'), array('&lt;', '&gt;'), substr($stringtoencode, $offset));
+
+	return $result;
+}
+
+/**
  *	This function is called to encode a string into a HTML string but differs from htmlentities because
  * 	a detection is done before to see if text is already HTML or not. Also, all entities but &,<,>," are converted.
  *  This permits to encode special chars to entities with no double encoding for already encoded HTML strings.
@@ -7292,6 +7356,10 @@ function dol_htmlentitiesbr($stringtoencode, $nl2brmode = 0, $pagecodefrom = 'UT
 		if ($removelasteolbr) {
 			$newstring = preg_replace('/<br>$/i', '', $newstring); // Remove last <br> (remove only last one)
 		}
+		// FEMTOEASY: a "<" (or ">") that is not part of a real HTML tag (ex: "Parallelism: <30 arcsec")
+		// is otherwise kept as-is below and breaks rendering (TCPDF/browser treat it as an opening tag).
+		// We escape only such orphan angle brackets, keeping genuine allowed HTML tags untouched.
+		$newstring = dol_escapeorphanhtmltags($newstring);
 		$newstring = strtr($newstring, array('&'=>'__and__', '<'=>'__lt__', '>'=>'__gt__', '"'=>'__dquot__'));
 		$newstring = dol_htmlentities($newstring, ENT_COMPAT, $pagecodefrom); // Make entity encoding
 		$newstring = strtr($newstring, array('__and__'=>'&', '__lt__'=>'<', '__gt__'=>'>', '__dquot__'=>'"'));
