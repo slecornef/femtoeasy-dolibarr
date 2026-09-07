@@ -423,6 +423,7 @@ if (empty($conf->global->MAIN_PRODUCT_PERENTITY_SHARED)) {
 	$sql .= " ppe.accountancy_code_sell, ppe.accountancy_code_sell_intra, ppe.accountancy_code_sell_export, ppe.accountancy_code_buy, ppe.accountancy_code_buy_intra, ppe.accountancy_code_buy_export,";
 }
 $sql .= ' p.datec as date_creation, p.tms as date_update, p.pmp, p.stock, p.cost_price,';
+$sql .= ' p.fk_default_warehouse,'; // FEMTOEASY : requis par load_stock() customisé (comptage sur l'entrepôt par défaut du produit)
 $sql .= ' p.weight, p.weight_units, p.length, p.length_units, p.width, p.width_units, p.height, p.height_units, p.surface, p.surface_units, p.volume, p.volume_units, fk_country, fk_state,';
 if (!empty($conf->global->PRODUCT_USE_UNITS)) {
 	$sql .= ' p.fk_unit, cu.label as cu_label,';
@@ -591,6 +592,7 @@ $sql .= $hookmanager->resPrint;
 $sql .= " GROUP BY p.rowid, p.ref, p.label, p.barcode, p.price, p.tva_tx, p.price_ttc, p.price_base_type,";
 $sql .= " p.fk_product_type, p.duration, p.finished, p.tosell, p.tobuy, p.seuil_stock_alerte, p.desiredstock,";
 $sql .= ' p.datec, p.tms, p.entity, p.tobatch, p.pmp, p.cost_price, p.stock,';
+$sql .= ' p.fk_default_warehouse,'; // FEMTOEASY : voir SELECT ci-dessus
 if (empty($conf->global->MAIN_PRODUCT_PERENTITY_SHARED)) {
 	$sql .= " p.accountancy_code_sell, p.accountancy_code_sell_intra, p.accountancy_code_sell_export, p.accountancy_code_buy, p.accountancy_code_buy_intra, p.accountancy_code_buy_export,";
 } else {
@@ -1394,6 +1396,7 @@ while ($i < min($num, $limit)) {
 		$product_static->status_batch = $obj->tobatch;
 		$product_static->entity = $obj->entity;
 		$product_static->pmp = $obj->pmp;
+		$product_static->fk_default_warehouse = $obj->fk_default_warehouse; // FEMTOEASY : sans ce champ, load_stock() customisé ne compte pas l'entrepôt par défaut et affiche 0
 		$product_static->accountancy_code_sell = $obj->accountancy_code_sell;
 		$product_static->accountancy_code_sell_export = $obj->accountancy_code_sell_export;
 		$product_static->accountancy_code_sell_intra = $obj->accountancy_code_sell_intra;
